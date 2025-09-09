@@ -704,6 +704,7 @@
                     <button onclick="loadHistoricalData()">Refresh</button>
                     <button onclick="exportAllData()">Export All Data</button>
                     <button onclick="importData()">Import Data</button>
+                    <button onclick="debugStorage()">Debug Storage</button>
                     <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
                 </div>
                 <div id="sessionsList"></div>
@@ -715,6 +716,7 @@
                 <h2>All-Time Player Statistics</h2>
                 <div style="margin-bottom: 15px;">
                     <button onclick="calculateAllTimeStats()">Refresh Stats</button>
+                    <button onclick="debugStorage()">Debug Storage</button>
                 </div>
                 <div id="allTimeStats"></div>
             </div>
@@ -1228,9 +1230,9 @@
             
             let html = '';
             players.forEach(player => {
-                const totalDebt = totalPlayerDebts[player] || 0;
-                const statusClass = totalDebt < 0 ? 'debt' : (totalDebt > 0 ? 'credit' : '');
-                const statusText = totalDebt < 0 ? `Owes $${Math.abs(totalDebt)}` : (totalDebt > 0 ? `Owed $${totalDebt}` : 'Even');
+                const totalAmount = totalPlayerDebts[player] || 0;
+                const statusClass = totalAmount < 0 ? 'debt' : (totalAmount > 0 ? 'credit' : '');
+                const statusText = totalAmount < 0 ? `Owes $${Math.abs(totalAmount)}` : (totalAmount > 0 ? `Won $${totalAmount}` : 'Even');
                 
                 html += `<tr>
                     <td><strong>${player}</strong></td>
@@ -1323,6 +1325,7 @@
             // Update player profiles
             updatePlayerProfiles(sessionData);
             
+            console.log('Session saved:', sessionData);
             alert('Session saved successfully!');
         }
         
@@ -1396,8 +1399,10 @@
             const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
             const sessionsList = document.getElementById('sessionsList');
             
+            console.log('Loading historical data, found sessions:', sessions.length);
+            
             if (sessions.length === 0) {
-                sessionsList.innerHTML = '<p>No saved sessions found.</p>';
+                sessionsList.innerHTML = '<p>No saved sessions found. Play some games and click "Save Session" to see history here.</p>';
                 return;
             }
             
@@ -1525,8 +1530,10 @@
             const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
             const statsDiv = document.getElementById('allTimeStats');
             
+            console.log('Calculating all-time stats, profiles:', Object.keys(profiles).length, 'sessions:', sessions.length);
+            
             if (Object.keys(profiles).length === 0) {
-                statsDiv.innerHTML = '<p>No player data available. Play some games first!</p>';
+                statsDiv.innerHTML = '<p>No player data available. Play some games and click "Save Session" to build statistics!</p>';
                 return;
             }
             
@@ -1845,6 +1852,28 @@
             if (event.target === modal) {
                 closeSessionModal();
             }
+        }
+        
+        function debugStorage() {
+            const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+            const profiles = JSON.parse(localStorage.getItem('sheepsheadProfiles') || '{}');
+            
+            console.log('=== STORAGE DEBUG ===');
+            console.log('Sessions in localStorage:', sessions.length);
+            console.log('Sessions data:', sessions);
+            console.log('Profiles in localStorage:', Object.keys(profiles).length);
+            console.log('Profiles data:', profiles);
+            console.log('Current game state:');
+            console.log('- Players:', players);
+            console.log('- Hands:', hands.length);
+            console.log('- Current session:', currentSessionNumber);
+            console.log('- Total player debts:', totalPlayerDebts);
+            
+            alert(`Storage Debug:
+Sessions: ${sessions.length}
+Profiles: ${Object.keys(profiles).length}
+Current hands: ${hands.length}
+Check console for detailed info.`);
         }
         
         function initializePlayerStats() {
