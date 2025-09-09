@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sheepshead Score Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c5530, #1a4d1a);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .setup-section, .game-section {
+            margin-bottom: 30px;
+        }
+
+        .setup-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, button, select {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input {
+            width: 100%;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .players-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .player-tag {
+            background: #2196F3;
+            padding: 8px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .remove-player {
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+        }
+
+        .scoreboard {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .score-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .score-table th,
+        .score-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .score-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .score-input {
+            width: 80px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .hand-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .hand-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .picker-partner {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .totals {
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .positive {
+            color: #4CAF50;
+        }
+
+        .negative {
+            color: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .hand-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐑 Sheepshead Score Tracker</h1>
+        
+        <div id="setup" class="setup-section">
+            <h2>Game Setup</h2>
+            <div class="input-group">
+                <label for="playerName">Add Player:</label>
+                <input type="text" id="playerName" placeholder="Enter player name">
+                <button onclick="addPlayer()">Add Player</button>
+            </div>
+            
+            <div class="players-list" id="playersList"></div>
+            
+            <button onclick="startGame()" id="startBtn" disabled>Start Game</button>
+        </div>
+
+        <div id="gameSection" class="game-section hidden">
+            <div class="hand-section">
+                <h3>Current Hand</h3>
+                <div class="hand-controls">
+                    <div class="input-group">
+                        <label for="picker">Picker:</label>
+                        <select id="picker" onchange="updatePartnerOptions()">
+                            <option value="">Select Picker</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="partner">Partner (called card holder):</label>
+                        <select id="partner">
+                            <option value="">Select Partner</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="pickerPoints">Picker Team Points:</label>
+                        <input type="number" id="pickerPoints" min="0" max="120" placeholder="0-120">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="wrapped" style="width: auto; margin-right: 8px;">
+                            Wrapped (doubled)
+                        </label>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="reWrapped" style="width: auto; margin-right: 8px;">
+                            Re-wrapped (re-doubled)
+                        </label>
+                    </div>
+                </div>
+                
+                <button onclick="scoreHand()">Score Hand</button>
+                <button onclick="clearHand()">Clear Hand</button>
+            </div>
+
+            <div class="scoreboard">
+                <h3>Scoreboard</h3>
+                <table class="score-table" id="scoreTable">
+                    <thead>
+                        <tr>
+                            <th>Hand</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scoreBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="scoreboard">
+                <h3>Player Statistics</h3>
+                <table class="score-table" id="statsTable">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Record</th>
+                            <th>Win %</th>
+                            <th>Times Picked</th>
+                            <th>Times Partner</th>
+                            <th>Avg Score/Hand</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button onclick="newGame()">New Game</button>
+                <button onclick="exportGame()">Export Scores</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let players = [];
+        let hands = [];
+        let currentHand = 1;
+        let playerStats = {};
+
+        function addPlayer() {
+            const nameInput = document.getElementById('playerName');
+            const name = nameInput.value.trim();
+            
+            if (name && !players.includes(name)) {
+                players.push(name);
+                updatePlayersList();
+                nameInput.value = '';
+                updateStartButton();
+            }
+        }
+
+        function removePlayer(name) {
+            players = players.filter(p => p !== name);
+            updatePlayersList();
+            updateStartButton();
+        }
+
+        function updatePlayersList() {
+            const list = document.getElementById('playersList');
+            list.innerHTML = players.map(player => 
+                `<div class="player-tag">
+                    ${player}
+                    <button class="remove-player" onclick="removePlayer('${player}')">×</button>
+                </div>`
+            ).join('');
+        }
+
+        function updateStartButton() {
+            const startBtn = document.getElementById('startBtn');
+            startBtn.disabled = players.length < 5;
+        }
+
+        function startGame() {
+            if (players.length < 5) return;
+            
+            initializePlayerStats();
+            document.getElementById('setup').classList.add('hidden');
+            document.getElementById('gameSection').classList.remove('hidden');
+            
+            setupGameInterface();
+        }
+
+        function setupGameInterface() {
+            const picker = document.getElementById('picker');
+            const partner = document.getElementById('partner');
+            
+            picker.innerHTML = '<option value="">Select Picker</option>' +
+                players.map(p => `<option value="${p}">${p}</option>`).join('');
+            
+            setupScoreTable();
+        }
+
+        function updatePartnerOptions() {
+            const picker = document.getElementById('picker').value;
+            const partner = document.getElementById('partner');
+            
+            partner.innerHTML = '<option value="">Select Partner</option>' +
+                players.filter(p => p !== picker)
+                    .map(p => `<option value="${p}">${p}</option>`).join('');
+        }
+
+        function setupScoreTable() {
+            const table = document.getElementById('scoreTable');
+            const thead = table.querySelector('thead tr');
+            const tbody = document.getElementById('scoreBody');
+            
+            thead.innerHTML = '<th>Hand</th>' + 
+                players.map(p => `<th>${p}</th>`).join('') +
+                '<th>Details</th>';
+            
+            updateScoreTable();
+        }
+
+        function scoreHand() {
+            const picker = document.getElementById('picker').value;
+            const partner = document.getElementById('partner').value;
+            const points = parseInt(document.getElementById('pickerPoints').value);
+            const wrapped = document.getElementById('wrapped').checked;
+            const reWrapped = document.getElementById('reWrapped').checked;
+            
+            if (!picker || !partner || isNaN(points)) {
+                alert('Please select picker, partner, and enter points');
+                return;
+            }
+            
+            const handResult = calculateScores(picker, partner, points, wrapped, reWrapped);
+            hands.push(handResult);
+            
+            updatePlayerStats(handResult);
+            updateScoreTable();
+            updateStatsTable();
+            clearHand();
+            currentHand++;
+        }
+
+        function calculateScores(picker, partner, points, wrapped = false, reWrapped = false) {
+            const hand = {
+                number: currentHand,
+                picker: picker,
+                partner: partner,
+                points: points,
+                wrapped: wrapped,
+                reWrapped: reWrapped,
+                scores: {}
+            };
+            
+            const pickerTeamWon = points >= 61;
+            const schneider = points >= 91 || points <= 30;
+            const schwarz = points === 120 || points === 0;
+            
+            let basePoints = 1;
+            if (schneider) basePoints = 2;
+            if (schwarz) basePoints = 3;
+            
+            if (wrapped) basePoints *= 2;
+            if (reWrapped) basePoints *= 2;
+            
+            players.forEach(player => {
+                if (player === picker) {
+                    hand.scores[player] = pickerTeamWon ? basePoints * 2 : -basePoints * 2;
+                } else if (player === partner) {
+                    hand.scores[player] = pickerTeamWon ? basePoints : -basePoints;
+                } else {
+                    hand.scores[player] = pickerTeamWon ? -basePoints : basePoints;
+                }
+            });
+            
+            let description = `${picker}+${partner} ${pickerTeamWon ? 'WON' : 'LOST'} (${points} pts)`;
+            if (schwarz) description += ' SCHWARZ';
+            else if (schneider) description += ' SCHNEIDER';
+            if (wrapped) description += ' WRAPPED';
+            if (reWrapped) description += ' RE-WRAPPED';
+            
+            hand.description = description;
+            
+            return hand;
+        }
+
+        function updateScoreTable() {
+            const tbody = document.getElementById('scoreBody');
+            
+            const totals = {};
+            players.forEach(p => totals[p] = 0);
+            
+            let html = '';
+            
+            hands.forEach(hand => {
+                html += `<tr>
+                    <td>${hand.number}</td>
+                    ${players.map(p => {
+                        totals[p] += hand.scores[p];
+                        return `<td class="${hand.scores[p] > 0 ? 'positive' : 'negative'}">${hand.scores[p]}</td>`;
+                    }).join('')}
+                    <td style="font-size: 12px;">${hand.description}</td>
+                </tr>`;
+            });
+            
+            html += `<tr class="totals">
+                <td><strong>TOTAL</strong></td>
+                ${players.map(p => `<td class="${totals[p] > 0 ? 'positive' : 'negative'}"><strong>${totals[p]}</strong></td>`).join('')}
+                <td></td>
+            </tr>`;
+            
+            tbody.innerHTML = html;
+        }
+
+        function clearHand() {
+            document.getElementById('picker').value = '';
+            document.getElementById('partner').value = '';
+            document.getElementById('pickerPoints').value = '';
+            document.getElementById('wrapped').checked = false;
+            document.getElementById('reWrapped').checked = false;
+            updatePartnerOptions();
+        }
+
+        function newGame() {
+            if (confirm('Start a new game? This will reset all scores.')) {
+                hands = [];
+                currentHand = 1;
+                playerStats = {};
+                document.getElementById('setup').classList.remove('hidden');
+                document.getElementById('gameSection').classList.add('hidden');
+                updateScoreTable();
+                updateStatsTable();
+            }
+        }
+
+        function exportGame() {
+            if (hands.length === 0) {
+                alert('No hands to export!');
+                return;
+            }
+            
+            let csv = 'Hand,';
+            csv += players.join(',') + ',Details\n';
+            
+            const totals = {};
+            players.forEach(p => totals[p] = 0);
+            
+            hands.forEach(hand => {
+                csv += `${hand.number},`;
+                csv += players.map(p => {
+                    totals[p] += hand.scores[p];
+                    return hand.scores[p];
+                }).join(',');
+                csv += `,"${hand.description}"\n`;
+            });
+            
+            csv += 'TOTAL,';
+            csv += players.map(p => totals[p]).join(',') + ',\n';
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sheepshead_scores_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('playerName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+
+        document.getElementById('pickerPoints').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                scoreHand();
+            }
+        });
+        
+        function initializePlayerStats() {
+            playerStats = {};
+            players.forEach(player => {
+                playerStats[player] = {
+                    wins: 0,
+                    losses: 0,
+                    timesPicked: 0,
+                    timesPartner: 0,
+                    totalScore: 0,
+                    handsPlayed: 0
+                };
+            });
+        }
+        
+        function updatePlayerStats(hand) {
+            const pickerTeamWon = hand.points >= 61;
+            
+            players.forEach(player => {
+                const stats = playerStats[player];
+                stats.handsPlayed++;
+                stats.totalScore += hand.scores[player];
+                
+                if (player === hand.picker) {
+                    stats.timesPicked++;
+                    if (pickerTeamWon) stats.wins++;
+                    else stats.losses++;
+                } else if (player === hand.partner) {
+                    stats.timesPartner++;
+                    if (pickerTeamWon) stats.wins++;
+                    else stats.losses++;
+                } else {
+                    if (!pickerTeamWon) stats.wins++;
+                    else stats.losses++;
+                }
+            });
+        }
+        
+        function updateStatsTable() {
+            const tbody = document.getElementById('statsBody');
+            
+            let html = '';
+            players.forEach(player => {
+                const stats = playerStats[player];
+                const winPercentage = stats.handsPlayed > 0 ? 
+                    ((stats.wins / stats.handsPlayed) * 100).toFixed(1) : '0.0';
+                const avgScore = stats.handsPlayed > 0 ? 
+                    (stats.totalScore / stats.handsPlayed).toFixed(1) : '0.0';
+                
+                html += `<tr>
+                    <td><strong>${player}</strong></td>
+                    <td>${stats.wins}-${stats.losses}</td>
+                    <td>${winPercentage}%</td>
+                    <td>${stats.timesPicked}</td>
+                    <td>${stats.timesPartner}</td>
+                    <td class="${parseFloat(avgScore) > 0 ? 'positive' : 'negative'}">${avgScore}</td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
