@@ -353,6 +353,45 @@
             color: #fff;
         }
 
+        .settlement-section {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .settlement-section h3 {
+            color: #FFC107;
+            margin-bottom: 15px;
+        }
+        
+        .session-marker {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #FFC107;
+            color: #FFC107;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        
+        .session-totals {
+            background: rgba(255, 193, 7, 0.15);
+            font-weight: bold;
+        }
+        
+        .debt {
+            color: #f44336;
+            font-weight: bold;
+        }
+        
+        .credit {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -464,8 +503,24 @@
                 <button onclick="clearHand()">Clear Hand</button>
             </div>
 
+            <div class="settlement-section" id="settlementSection" style="display: none;">
+                <h3>💰 Settlement Summary</h3>
+                <p>Total debt/winnings across all 5-hand sessions:</p>
+                <table class="score-table" id="settlementTable">
+                    <thead>
+                        <tr id="settlementHeader">
+                            <th>Player</th>
+                            <th>Total Owed/Won</th>
+                        </tr>
+                    </thead>
+                    <tbody id="settlementBody">
+                    </tbody>
+                </table>
+            </div>
+
             <div class="scoreboard">
-                <h3>Scoreboard</h3>
+                <h3>Current Session Scoreboard</h3>
+                <div id="sessionInfo" style="text-align: center; margin-bottom: 15px; color: #4CAF50; font-weight: bold;"></div>
                 <table class="score-table" id="scoreTable">
                     <thead>
                         <tr>
@@ -537,11 +592,17 @@
 
     <script>
         let players = [];
+        let allPlayers = []; // All selected players including sitting out
         let hands = [];
         let currentHand = 1;
         let playerStats = {};
         let currentSessionId = null;
         let gameStartTime = null;
+        let currentDealer = null;
+        let sittingOut = null;
+        let fiveHandSessions = []; // Track each 5-hand session
+        let currentSessionNumber = 1;
+        let totalPlayerDebts = {}; // Running total of what each player owes
 
         function addPlayer() {
             const nameInput = document.getElementById('playerName');
@@ -582,6 +643,7 @@
             gameStartTime = new Date().toISOString();
             currentSessionId = generateSessionId();
             initializePlayerStats();
+            initializeSessionTracking();
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('gameSection').classList.remove('hidden');
             
@@ -655,6 +717,12 @@
             updatePlayerStats(handResult);
             updateScoreTable();
             updateStatsTable();
+            
+            // Check if we've completed a 5-hand session
+            if (currentHand % 5 === 0) {
+                completeSession();
+            }
+            
             clearHand();
             currentHand++;
         }
@@ -707,28 +775,54 @@
 
         function updateScoreTable() {
             const tbody = document.getElementById('scoreBody');
+            const sessionInfo = document.getElementById('sessionInfo');
+            
+            // Update session info
+            const handsInCurrentSession = ((currentHand - 1) % 5) + 1;
+            const handsRemaining = 5 - ((currentHand - 1) % 5);
+            sessionInfo.innerHTML = `Session ${currentSessionNumber} - Hand ${handsInCurrentSession} of 5 (${handsRemaining - 1} hands remaining)`;
             
             const totals = {};
             players.forEach(p => totals[p] = 0);
             
             let html = '';
             
-            hands.forEach(hand => {
+            // Get hands for current session only
+            const sessionStartHand = (currentSessionNumber - 1) * 5 + 1;
+            const currentSessionHands = hands.filter(h => h.number >= sessionStartHand);
+            
+            currentSessionHands.forEach(hand => {
                 html += `<tr>
                     <td>${hand.number}</td>
                     ${players.map(p => {
                         totals[p] += hand.scores[p];
-                        return `<td class="${hand.scores[p] > 0 ? 'positive' : 'negative'}">${hand.scores[p]}</td>`;
+                        return `<td class="${hand.scores[p] > 0 ? 'positive' : 'negative'}">$${hand.scores[p]}</td>`;
                     }).join('')}
                     <td style="font-size: 12px;">${hand.description}</td>
                 </tr>`;
             });
             
             html += `<tr class="totals">
-                <td><strong>TOTAL</strong></td>
-                ${players.map(p => `<td class="${totals[p] > 0 ? 'positive' : 'negative'}"><strong>${totals[p]}</strong></td>`).join('')}
+                <td><strong>SESSION TOTAL</strong></td>
+                ${players.map(p => `<td class="${totals[p] > 0 ? 'positive' : 'negative'}"><strong>$${totals[p]}</strong></td>`).join('')}
                 <td></td>
             </tr>`;
+            
+            // Add previous sessions summary
+            if (fiveHandSessions.length > 0) {
+                html += `<tr><td colspan="${players.length + 2}" class="session-marker">Previous Sessions</td></tr>`;
+                
+                fiveHandSessions.forEach((session, index) => {
+                    html += `<tr class="session-totals">
+                        <td><strong>Session ${index + 1}</strong></td>
+                        ${players.map(p => {
+                            const amount = session.totals[p] || 0;
+                            return `<td class="${amount > 0 ? 'positive' : 'negative'}"><strong>$${amount}</strong></td>`;
+                        }).join('')}
+                        <td><em>Settled</em></td>
+                    </tr>`;
+                });
+            }
             
             tbody.innerHTML = html;
         }
@@ -746,12 +840,16 @@
         }
 
         function newGame() {
-            if (confirm('Start a new game? This will reset all scores.')) {
+            if (confirm('Start a new game? This will reset all scores and sessions.')) {
                 hands = [];
                 currentHand = 1;
                 playerStats = {};
+                fiveHandSessions = [];
+                currentSessionNumber = 1;
+                totalPlayerDebts = {};
                 document.getElementById('setup').classList.remove('hidden');
                 document.getElementById('gameSection').classList.add('hidden');
+                document.getElementById('settlementSection').style.display = 'none';
                 updateScoreTable();
                 updateStatsTable();
             }
@@ -773,13 +871,13 @@
                 csv += `${hand.number},`;
                 csv += players.map(p => {
                     totals[p] += hand.scores[p];
-                    return hand.scores[p];
+                    return `$${hand.scores[p]}`;
                 }).join(',');
                 csv += `,"${hand.description}"\n`;
             });
             
             csv += 'TOTAL,';
-            csv += players.map(p => totals[p]).join(',') + ',\n';
+            csv += players.map(p => `$${totals[p]}`).join(',') + ',\n';
             
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
@@ -863,6 +961,102 @@
                 updateStartButton();
             };
         }
+        
+        function initializeSessionTracking() {
+            fiveHandSessions = [];
+            currentSessionNumber = 1;
+            totalPlayerDebts = {};
+            players.forEach(player => {
+                totalPlayerDebts[player] = 0;
+            });
+        }
+        
+        function completeSession() {
+            // Calculate session totals
+            const sessionTotals = {};
+            players.forEach(p => sessionTotals[p] = 0);
+            
+            const sessionStartHand = (currentSessionNumber - 1) * 5 + 1;
+            const sessionHands = hands.filter(h => h.number >= sessionStartHand && h.number < sessionStartHand + 5);
+            
+            sessionHands.forEach(hand => {
+                players.forEach(player => {
+                    sessionTotals[player] += hand.scores[player];
+                });
+            });
+            
+            // Store the completed session
+            fiveHandSessions.push({
+                sessionNumber: currentSessionNumber,
+                totals: { ...sessionTotals },
+                hands: [...sessionHands]
+            });
+            
+            // Update running debt totals
+            players.forEach(player => {
+                totalPlayerDebts[player] += sessionTotals[player];
+            });
+            
+            // Move to next session
+            currentSessionNumber++;
+            
+            // Update displays
+            updateSettlementTable();
+            updateScoreTable();
+            
+            // Show settlement alert
+            showSessionSettlementAlert(sessionTotals);
+        }
+        
+        function showSessionSettlementAlert(sessionTotals) {
+            let message = `Session ${currentSessionNumber - 1} Complete!\\n\\nSettlement for this session:\\n`;
+            
+            const debts = Object.entries(sessionTotals)
+                .filter(([player, amount]) => amount < 0)
+                .sort((a, b) => a[1] - b[1]); // Most debt first
+            
+            const credits = Object.entries(sessionTotals)
+                .filter(([player, amount]) => amount > 0)
+                .sort((a, b) => b[1] - a[1]); // Highest credit first
+            
+            debts.forEach(([player, amount]) => {
+                message += `${player}: Owes $${Math.abs(amount)} to kitty\\n`;
+            });
+            
+            credits.forEach(([player, amount]) => {
+                message += `${player}: Collects $${amount} from kitty\\n`;
+            });
+            
+            message += `\\nStarting fresh session ${currentSessionNumber}...`;
+            
+            alert(message);
+        }
+        
+        function updateSettlementTable() {
+            const settlementSection = document.getElementById('settlementSection');
+            const tbody = document.getElementById('settlementBody');
+            
+            if (fiveHandSessions.length === 0) {
+                settlementSection.style.display = 'none';
+                return;
+            }
+            
+            settlementSection.style.display = 'block';
+            
+            let html = '';
+            players.forEach(player => {
+                const totalDebt = totalPlayerDebts[player] || 0;
+                const statusClass = totalDebt < 0 ? 'debt' : (totalDebt > 0 ? 'credit' : '');
+                const statusText = totalDebt < 0 ? `Owes $${Math.abs(totalDebt)}` : (totalDebt > 0 ? `Owed $${totalDebt}` : 'Even');
+                
+                html += `<tr>
+                    <td><strong>${player}</strong></td>
+                    <td class="${statusClass}">${statusText}</td>
+                </tr>`;
+            });
+            
+            tbody.innerHTML = html;
+        }
 
         document.getElementById('pickerPoints').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -908,12 +1102,23 @@
                 totalHands: hands.length
             };
             
-            // Calculate final scores
+            // Calculate final scores (total across all sessions)
             players.forEach(player => {
-                sessionData.finalScores[player] = hands.reduce((total, hand) => {
+                sessionData.finalScores[player] = totalPlayerDebts[player] || 0;
+            });
+            
+            // Also store current session scores if in progress
+            const currentSessionScores = {};
+            const sessionStartHand = (currentSessionNumber - 1) * 5 + 1;
+            const currentSessionHands = hands.filter(h => h.number >= sessionStartHand);
+            
+            players.forEach(player => {
+                currentSessionScores[player] = currentSessionHands.reduce((total, hand) => {
                     return total + (hand.scores[player] || 0);
                 }, 0);
             });
+            
+            sessionData.currentSessionScores = currentSessionScores;
             
             // Save to localStorage
             const existingSessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
@@ -926,6 +1131,11 @@
             }
             
             localStorage.setItem('sheepsheadSessions', JSON.stringify(existingSessions));
+            
+            // Add session tracking data
+            sessionData.fiveHandSessions = fiveHandSessions;
+            sessionData.totalPlayerDebts = totalPlayerDebts;
+            sessionData.currentSessionNumber = currentSessionNumber;
             
             // Update player profiles
             updatePlayerProfiles(sessionData);
@@ -1026,7 +1236,7 @@
                             Players: ${session.players.join(', ')}
                         </div>
                         <div style="font-size: 14px; color: #4CAF50; margin-top: 5px;">
-                            Winner: ${winner[0]} (${winner[1]} points)
+                            Winner: ${winner[0]} ($${winner[1]})
                         </div>
                     </div>
                 `;
@@ -1064,7 +1274,7 @@
                         <tr>
                             ${session.players.map(p => {
                                 const score = session.finalScores[p];
-                                return `<td class="${score > 0 ? 'positive' : 'negative'}"><strong>${score}</strong></td>`;
+                                return `<td class="${score > 0 ? 'positive' : 'negative'}"><strong>$${score}</strong></td>`;
                             }).join('')}
                         </tr>
                     </tbody>
@@ -1089,7 +1299,7 @@
                         <td>${hand.number}</td>
                         ${session.players.map(p => {
                             const score = hand.scores[p] || 0;
-                            return `<td class="${score > 0 ? 'positive' : 'negative'}">${score}</td>`;
+                            return `<td class="${score > 0 ? 'positive' : 'negative'}">$${score}</td>`;
                         }).join('')}
                         <td>${hand.calledSuit || 'N/A'}</td>
                         <td style="font-size: 12px;">${hand.description}</td>
@@ -1154,7 +1364,7 @@
                         <tr>
                             <th>Rank</th>
                             <th>Player</th>
-                            <th>Total Score</th>
+                            <th>Total Winnings</th>
                             <th>Sessions</th>
                             <th>Record</th>
                             <th>Win %</th>
@@ -1172,11 +1382,11 @@
                     <tr>
                         <td><strong>${index + 1}</strong></td>
                         <td><strong>${player.name}</strong></td>
-                        <td class="${player.allTimeScore > 0 ? 'positive' : 'negative'}"><strong>${player.allTimeScore}</strong></td>
+                        <td class="${player.allTimeScore > 0 ? 'positive' : 'negative'}"><strong>$${player.allTimeScore}</strong></td>
                         <td>${player.totalSessions}</td>
                         <td>${player.allTimeRecord.wins}-${player.allTimeRecord.losses}</td>
                         <td>${player.winPercentage}%</td>
-                        <td class="${parseFloat(player.avgScorePerHand) > 0 ? 'positive' : 'negative'}">${player.avgScorePerHand}</td>
+                        <td class="${parseFloat(player.avgScorePerHand) > 0 ? 'positive' : 'negative'}">$${player.avgScorePerHand}</td>
                         <td>${player.timesPickedTotal}</td>
                         <td>${player.timesPartnerTotal}</td>
                         <td>${player.lastPlayed || 'Never'}</td>
@@ -1508,7 +1718,7 @@
                     <td>${winPercentage}%</td>
                     <td>${stats.timesPicked}</td>
                     <td>${stats.timesPartner}</td>
-                    <td class="${parseFloat(avgScore) > 0 ? 'positive' : 'negative'}">${avgScore}</td>
+                    <td class="${parseFloat(avgScore) > 0 ? 'positive' : 'negative'}">$${avgScore}</td>
                 </tr>`;
             });
             
