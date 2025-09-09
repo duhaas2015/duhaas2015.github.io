@@ -809,10 +809,7 @@
                 let classes = 'player-tag';
                 let statusText = '';
                 
-                if (player.name === currentHandDealer) {
-                    classes += ' dealer-indicator';
-                    statusText = ' (Dealer)';
-                }
+                // No dealer indicator in setup - dealer is selected per hand
                 if (player.name === sittingOut) {
                     classes += ' sitting-out';
                     statusText = ' (Sitting Out)';
@@ -1171,6 +1168,7 @@ Dealer redeals now...`);
                 totalPlayerDebts = {};
                 nextHandIsDoubled = false;
                 currentHandMultiplier = 1;
+                currentHandDealer = null;
                 document.getElementById('setup').classList.remove('hidden');
                 document.getElementById('gameSection').classList.add('hidden');
                 document.getElementById('settlementSection').style.display = 'none';
@@ -1258,12 +1256,8 @@ Dealer redeals now...`);
         }
         
         function updateDealerOptions() {
-            const dealerSelect = document.getElementById('dealer');
-            dealerSelect.innerHTML = '<option value="">Select Dealer</option>' +
-                allPlayers.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
-            
-            // Dealer is now selected per hand, not globally
-            // This function kept for backwards compatibility
+            // Dealer is now selected per hand, not in setup
+            // This function is no longer needed
         }
         
         function updateSittingOutOptions() {
@@ -1285,6 +1279,7 @@ Dealer redeals now...`);
             totalPlayerDebts = {};
             nextHandIsDoubled = false;
             currentHandMultiplier = 1;
+            currentHandDealer = null;
             players.forEach(player => {
                 totalPlayerDebts[player] = 0;
             });
