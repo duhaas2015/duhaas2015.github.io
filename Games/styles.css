@@ -1,0 +1,232 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: #2c3e50;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.screen {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Setup Screen */
+.setup-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.setup-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.setup-form select, .setup-form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#player-names {
+    margin: 20px 0;
+}
+
+.player-input {
+    margin-bottom: 10px;
+}
+
+.player-input label {
+    margin-bottom: 5px;
+}
+
+/* Buttons */
+.btn-primary, .btn-secondary {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.btn-secondary {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #7f8c8d;
+}
+
+/* Game Screen */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ecf0f1;
+}
+
+.current-scores {
+    margin-bottom: 30px;
+}
+
+.current-scores h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+#score-table {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.score-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    align-items: center;
+}
+
+.player-name {
+    font-weight: 600;
+}
+
+.player-score {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+/* Hand Form */
+.hand-form {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 6px;
+    margin-bottom: 30px;
+}
+
+.hand-form h3 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-group select, .form-group input[type="checkbox"] {
+    margin-bottom: 5px;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.form-group input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* Hand History */
+.hand-history h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+}
+
+.history-item {
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border-left: 4px solid #3498db;
+}
+
+.history-header {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.history-details {
+    font-size: 0.9em;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .screen {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .game-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+}
