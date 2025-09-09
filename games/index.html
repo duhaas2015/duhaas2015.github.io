@@ -594,7 +594,7 @@
             const wrappedBy = document.getElementById('wrappedBy');
             const reWrappedBy = document.getElementById('reWrappedBy');
             
-            const playerOptions = players.map(p => `<option value="${p}">${p}</option>`).join('');
+            const playerOptions = players.map(p => `<option value="${p}">${p}${p === currentDealer ? ' (Dealer)' : ''}</option>`).join('');
             
             picker.innerHTML = '<option value="">Select Picker</option>' + playerOptions;
             wrappedBy.innerHTML = '<option value="">Who wrapped?</option>' + playerOptions;
@@ -609,7 +609,7 @@
             
             partner.innerHTML = '<option value="">Select Partner</option>' +
                 players.filter(p => p !== picker)
-                    .map(p => `<option value="${p}">${p}</option>`).join('');
+                    .map(p => `<option value="${p}">${p}${p === currentDealer ? ' (Dealer)' : ''}</option>`).join('');
         }
 
         function setupScoreTable() {
@@ -695,7 +695,7 @@
             });
             
             let description = `${picker}+${partner} ${pickerTeamWon ? 'WON' : 'LOST'} (${points} pts, called ${calledSuit})`;
-            if (schwarz) description += ' SCHWARZ';
+            if (schwarz) description += ' NO TRICK';
             else if (schneider) description += ' SCHNEIDER';
             if (wrapped) description += ` WRAPPED by ${wrappedBy}`;
             if (reWrapped) description += ` RE-WRAPPED by ${reWrappedBy}`;
@@ -792,9 +792,77 @@
 
         document.getElementById('playerName').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                addPlayer();
+                addCustomPlayer();
             }
         });
+        
+        // Initialize preset player checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('#presetPlayers input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateSelectedPlayers);
+            });
+        });
+        
+        function updateSelectedPlayers() {
+            const checkboxes = document.querySelectorAll('#presetPlayers input[type="checkbox"]');
+            allPlayers = [];
+            
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    allPlayers.push({ name: checkbox.value });
+                }
+            });
+            
+            // Update active players (excluding sitting out)
+            players = allPlayers.filter(p => p.name !== sittingOut).map(p => p.name);
+            
+            // Show/hide dealer and sitting controls
+            const dealerSittingControls = document.getElementById('dealerSittingControls');
+            const sittingOutControl = document.getElementById('sittingOutControl');
+            
+            if (allPlayers.length > 0) {
+                dealerSittingControls.style.display = 'block';
+                updateDealerOptions();
+                
+                if (allPlayers.length > 5) {
+                    sittingOutControl.style.display = 'block';
+                    updateSittingOutOptions();
+                } else {
+                    sittingOutControl.style.display = 'none';
+                    sittingOut = null;
+                }
+            } else {
+                dealerSittingControls.style.display = 'none';
+            }
+            
+            updatePlayersList();
+            updateStartButton();
+        }
+        
+        function updateDealerOptions() {
+            const dealerSelect = document.getElementById('dealer');
+            dealerSelect.innerHTML = '<option value="">Select Dealer</option>' +
+                allPlayers.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+            
+            dealerSelect.onchange = function() {
+                currentDealer = this.value;
+                updatePlayersList();
+            };
+        }
+        
+        function updateSittingOutOptions() {
+            const sittingSelect = document.getElementById('sittingOut');
+            sittingSelect.innerHTML = '<option value="">No one sitting out</option>' +
+                allPlayers.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+            
+            sittingSelect.onchange = function() {
+                sittingOut = this.value || null;
+                players = allPlayers.filter(p => p.name !== sittingOut).map(p => p.name);
+                updatePlayersList();
+                updateStartButton();
+            };
+        }
 
         document.getElementById('pickerPoints').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
