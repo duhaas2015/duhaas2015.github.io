@@ -185,6 +185,100 @@
             color: #f44336;
         }
 
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .nav-tab.active {
+            color: #fff;
+            border-bottom-color: #4CAF50;
+        }
+
+        .nav-tab:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .session-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .session-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .session-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .session-players {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c5530, #1a4d1a);
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -204,6 +298,13 @@
     <div class="container">
         <h1>🐑 Sheepshead Score Tracker</h1>
         
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('current')">Current Game</button>
+            <button class="nav-tab" onclick="showTab('history')">Game History</button>
+            <button class="nav-tab" onclick="showTab('stats')">All-Time Stats</button>
+        </div>
+
+        <div id="currentTab" class="tab-content active">
         <div id="setup" class="setup-section">
             <h2>Game Setup</h2>
             <div class="input-group">
@@ -232,6 +333,16 @@
                         <label for="partner">Partner (called card holder):</label>
                         <select id="partner">
                             <option value="">Select Partner</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="calledSuit">Called Suit:</label>
+                        <select id="calledSuit">
+                            <option value="">Select Called Suit</option>
+                            <option value="Hearts">Hearts</option>
+                            <option value="Spades">Spades</option>
+                            <option value="Clubs">Clubs (non-trump)</option>
                         </select>
                     </div>
                     
@@ -291,8 +402,41 @@
             </div>
 
             <div style="margin-top: 20px;">
+                <button onclick="saveSession()">Save Session</button>
                 <button onclick="newGame()">New Game</button>
-                <button onclick="exportGame()">Export Scores</button>
+                <button onclick="exportGame()">Export Current Game</button>
+            </div>
+        </div>
+        </div>
+
+        <div id="historyTab" class="tab-content">
+            <div class="setup-section">
+                <h2>Game History</h2>
+                <div style="margin-bottom: 15px;">
+                    <button onclick="loadHistoricalData()">Refresh</button>
+                    <button onclick="exportAllData()">Export All Data</button>
+                    <button onclick="importData()">Import Data</button>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleImport(event)">
+                </div>
+                <div id="sessionsList"></div>
+            </div>
+        </div>
+
+        <div id="statsTab" class="tab-content">
+            <div class="setup-section">
+                <h2>All-Time Player Statistics</h2>
+                <div style="margin-bottom: 15px;">
+                    <button onclick="calculateAllTimeStats()">Refresh Stats</button>
+                </div>
+                <div id="allTimeStats"></div>
+            </div>
+        </div>
+
+        <!-- Session Detail Modal -->
+        <div id="sessionModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeSessionModal()">&times;</span>
+                <div id="sessionDetail"></div>
             </div>
         </div>
     </div>
@@ -302,6 +446,8 @@
         let hands = [];
         let currentHand = 1;
         let playerStats = {};
+        let currentSessionId = null;
+        let gameStartTime = null;
 
         function addPlayer() {
             const nameInput = document.getElementById('playerName');
@@ -339,6 +485,8 @@
         function startGame() {
             if (players.length < 5) return;
             
+            gameStartTime = new Date().toISOString();
+            currentSessionId = generateSessionId();
             initializePlayerStats();
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('gameSection').classList.remove('hidden');
@@ -383,13 +531,14 @@
             const points = parseInt(document.getElementById('pickerPoints').value);
             const wrapped = document.getElementById('wrapped').checked;
             const reWrapped = document.getElementById('reWrapped').checked;
+            const calledSuit = document.getElementById('calledSuit').value;
             
-            if (!picker || !partner || isNaN(points)) {
-                alert('Please select picker, partner, and enter points');
+            if (!picker || !partner || isNaN(points) || !calledSuit) {
+                alert('Please select picker, partner, points, and called suit');
                 return;
             }
             
-            const handResult = calculateScores(picker, partner, points, wrapped, reWrapped);
+            const handResult = calculateScores(picker, partner, points, wrapped, reWrapped, calledSuit);
             hands.push(handResult);
             
             updatePlayerStats(handResult);
@@ -399,7 +548,7 @@
             currentHand++;
         }
 
-        function calculateScores(picker, partner, points, wrapped = false, reWrapped = false) {
+        function calculateScores(picker, partner, points, wrapped = false, reWrapped = false, calledSuit = '') {
             const hand = {
                 number: currentHand,
                 picker: picker,
@@ -407,6 +556,7 @@
                 points: points,
                 wrapped: wrapped,
                 reWrapped: reWrapped,
+                calledSuit: calledSuit,
                 scores: {}
             };
             
@@ -431,7 +581,7 @@
                 }
             });
             
-            let description = `${picker}+${partner} ${pickerTeamWon ? 'WON' : 'LOST'} (${points} pts)`;
+            let description = `${picker}+${partner} ${pickerTeamWon ? 'WON' : 'LOST'} (${points} pts, called ${calledSuit})`;
             if (schwarz) description += ' SCHWARZ';
             else if (schneider) description += ' SCHNEIDER';
             if (wrapped) description += ' WRAPPED';
@@ -476,6 +626,7 @@
             document.getElementById('pickerPoints').value = '';
             document.getElementById('wrapped').checked = false;
             document.getElementById('reWrapped').checked = false;
+            document.getElementById('calledSuit').value = '';
             updatePartnerOptions();
         }
 
@@ -535,6 +686,512 @@
                 scoreHand();
             }
         });
+        
+        function generateSessionId() {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
+            const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
+            return `session_${dateStr}_${timeStr}`;
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'history') {
+                loadHistoricalData();
+            } else if (tabName === 'stats') {
+                calculateAllTimeStats();
+            }
+        }
+        
+        function saveSession() {
+            if (hands.length === 0) {
+                alert('No hands to save!');
+                return;
+            }
+            
+            const sessionData = {
+                id: currentSessionId,
+                date: new Date().toISOString().split('T')[0],
+                startTime: gameStartTime,
+                endTime: new Date().toISOString(),
+                players: [...players],
+                hands: [...hands],
+                finalScores: {},
+                totalHands: hands.length
+            };
+            
+            // Calculate final scores
+            players.forEach(player => {
+                sessionData.finalScores[player] = hands.reduce((total, hand) => {
+                    return total + (hand.scores[player] || 0);
+                }, 0);
+            });
+            
+            // Save to localStorage
+            const existingSessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+            const existingIndex = existingSessions.findIndex(s => s.id === currentSessionId);
+            
+            if (existingIndex >= 0) {
+                existingSessions[existingIndex] = sessionData;
+            } else {
+                existingSessions.push(sessionData);
+            }
+            
+            localStorage.setItem('sheepsheadSessions', JSON.stringify(existingSessions));
+            
+            // Update player profiles
+            updatePlayerProfiles(sessionData);
+            
+            alert('Session saved successfully!');
+        }
+        
+        function updatePlayerProfiles(sessionData) {
+            const profiles = JSON.parse(localStorage.getItem('sheepsheadProfiles') || '{}');
+            
+            sessionData.players.forEach(player => {
+                if (!profiles[player]) {
+                    profiles[player] = {
+                        allTimeRecord: {wins: 0, losses: 0},
+                        totalSessions: 0,
+                        totalHands: 0,
+                        allTimeScore: 0,
+                        timesPickedTotal: 0,
+                        timesPartnerTotal: 0,
+                        lastPlayed: null,
+                        sessions: []
+                    };
+                }
+                
+                const profile = profiles[player];
+                const playerStats = calculatePlayerStatsForSession(sessionData, player);
+                
+                profile.allTimeRecord.wins += playerStats.wins;
+                profile.allTimeRecord.losses += playerStats.losses;
+                profile.totalSessions += 1;
+                profile.totalHands += playerStats.handsPlayed;
+                profile.allTimeScore += sessionData.finalScores[player];
+                profile.timesPickedTotal += playerStats.timesPicked;
+                profile.timesPartnerTotal += playerStats.timesPartner;
+                profile.lastPlayed = sessionData.date;
+                
+                if (!profile.sessions.includes(sessionData.id)) {
+                    profile.sessions.push(sessionData.id);
+                }
+            });
+            
+            localStorage.setItem('sheepsheadProfiles', JSON.stringify(profiles));
+        }
+        
+        function calculatePlayerStatsForSession(sessionData, player) {
+            const stats = {
+                wins: 0,
+                losses: 0,
+                timesPicked: 0,
+                timesPartner: 0,
+                handsPlayed: sessionData.hands.length
+            };
+            
+            sessionData.hands.forEach(hand => {
+                const pickerTeamWon = hand.points >= 61;
+                
+                if (hand.picker === player) {
+                    stats.timesPicked++;
+                    if (pickerTeamWon) stats.wins++;
+                    else stats.losses++;
+                } else if (hand.partner === player) {
+                    stats.timesPartner++;
+                    if (pickerTeamWon) stats.wins++;
+                    else stats.losses++;
+                } else {
+                    if (!pickerTeamWon) stats.wins++;
+                    else stats.losses++;
+                }
+            });
+            
+            return stats;
+        }
+        
+        function loadHistoricalData() {
+            const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+            const sessionsList = document.getElementById('sessionsList');
+            
+            if (sessions.length === 0) {
+                sessionsList.innerHTML = '<p>No saved sessions found.</p>';
+                return;
+            }
+            
+            sessions.sort((a, b) => new Date(b.endTime) - new Date(a.endTime));
+            
+            let html = '';
+            sessions.forEach(session => {
+                const date = new Date(session.endTime).toLocaleDateString();
+                const time = new Date(session.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const winner = Object.entries(session.finalScores).reduce((a, b) => session.finalScores[a[0]] > session.finalScores[b[0]] ? a : b);
+                
+                html += `
+                    <div class="session-item" onclick="viewSessionDetail('${session.id}')">
+                        <div class="session-meta">
+                            <strong>${date} at ${time}</strong>
+                            <span>${session.totalHands} hands</span>
+                        </div>
+                        <div class="session-players">
+                            Players: ${session.players.join(', ')}
+                        </div>
+                        <div style="font-size: 14px; color: #4CAF50; margin-top: 5px;">
+                            Winner: ${winner[0]} (${winner[1]} points)
+                        </div>
+                    </div>
+                `;
+            });
+            
+            sessionsList.innerHTML = html;
+        }
+        
+        function viewSessionDetail(sessionId) {
+            const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+            const session = sessions.find(s => s.id === sessionId);
+            
+            if (!session) return;
+            
+            const modal = document.getElementById('sessionModal');
+            const detail = document.getElementById('sessionDetail');
+            
+            const date = new Date(session.endTime).toLocaleDateString();
+            const startTime = new Date(session.startTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const endTime = new Date(session.endTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            let html = `
+                <h2>Session Details - ${date}</h2>
+                <p><strong>Time:</strong> ${startTime} - ${endTime}</p>
+                <p><strong>Total Hands:</strong> ${session.totalHands}</p>
+                
+                <h3>Final Scores</h3>
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            ${session.players.map(p => `<th>${p}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            ${session.players.map(p => {
+                                const score = session.finalScores[p];
+                                return `<td class="${score > 0 ? 'positive' : 'negative'}"><strong>${score}</strong></td>`;
+                            }).join('')}
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3>Hand History</h3>
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Hand</th>
+                            ${session.players.map(p => `<th>${p}</th>`).join('')}
+                            <th>Called Suit</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            session.hands.forEach(hand => {
+                html += `
+                    <tr>
+                        <td>${hand.number}</td>
+                        ${session.players.map(p => {
+                            const score = hand.scores[p] || 0;
+                            return `<td class="${score > 0 ? 'positive' : 'negative'}">${score}</td>`;
+                        }).join('')}
+                        <td>${hand.calledSuit || 'N/A'}</td>
+                        <td style="font-size: 12px;">${hand.description}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+                
+                <div style="margin-top: 20px;">
+                    <button onclick="deleteSession('${sessionId}')">Delete Session</button>
+                    <button onclick="exportSession('${sessionId}')">Export Session</button>
+                </div>
+            `;
+            
+            detail.innerHTML = html;
+            modal.style.display = 'block';
+        }
+        
+        function closeSessionModal() {
+            document.getElementById('sessionModal').style.display = 'none';
+        }
+        
+        function deleteSession(sessionId) {
+            if (!confirm('Are you sure you want to delete this session?')) return;
+            
+            const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+            const updatedSessions = sessions.filter(s => s.id !== sessionId);
+            localStorage.setItem('sheepsheadSessions', JSON.stringify(updatedSessions));
+            
+            closeSessionModal();
+            loadHistoricalData();
+            alert('Session deleted successfully!');
+        }
+        
+        function calculateAllTimeStats() {
+            const profiles = JSON.parse(localStorage.getItem('sheepsheadProfiles') || '{}');
+            const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+            const statsDiv = document.getElementById('allTimeStats');
+            
+            if (Object.keys(profiles).length === 0) {
+                statsDiv.innerHTML = '<p>No player data available. Play some games first!</p>';
+                return;
+            }
+            
+            const playerData = Object.entries(profiles).map(([name, profile]) => ({
+                name,
+                ...profile,
+                winPercentage: profile.totalHands > 0 ? ((profile.allTimeRecord.wins / profile.totalHands) * 100).toFixed(1) : 0,
+                avgScorePerHand: profile.totalHands > 0 ? (profile.allTimeScore / profile.totalHands).toFixed(2) : 0
+            })).sort((a, b) => b.allTimeScore - a.allTimeScore);
+            
+            // Calculate suit calling statistics
+            const suitStats = calculateSuitCallingStats(sessions);
+            
+            let html = `
+                <h3>Player Rankings</h3>
+                <table class="score-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Total Score</th>
+                            <th>Sessions</th>
+                            <th>Record</th>
+                            <th>Win %</th>
+                            <th>Avg/Hand</th>
+                            <th>Times Picked</th>
+                            <th>Times Partner</th>
+                            <th>Last Played</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            playerData.forEach((player, index) => {
+                html += `
+                    <tr>
+                        <td><strong>${index + 1}</strong></td>
+                        <td><strong>${player.name}</strong></td>
+                        <td class="${player.allTimeScore > 0 ? 'positive' : 'negative'}"><strong>${player.allTimeScore}</strong></td>
+                        <td>${player.totalSessions}</td>
+                        <td>${player.allTimeRecord.wins}-${player.allTimeRecord.losses}</td>
+                        <td>${player.winPercentage}%</td>
+                        <td class="${parseFloat(player.avgScorePerHand) > 0 ? 'positive' : 'negative'}">${player.avgScorePerHand}</td>
+                        <td>${player.timesPickedTotal}</td>
+                        <td>${player.timesPartnerTotal}</td>
+                        <td>${player.lastPlayed || 'Never'}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+                
+                <h3 style="margin-top: 30px;">Called Suit Statistics</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 15px;">
+                    <div class="scoreboard">
+                        <h4>Overall Suit Performance</h4>
+                        <table class="score-table">
+                            <thead>
+                                <tr>
+                                    <th>Suit</th>
+                                    <th>Times Called</th>
+                                    <th>Win Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            Object.entries(suitStats.overall).forEach(([suit, stats]) => {
+                const winRate = stats.total > 0 ? ((stats.wins / stats.total) * 100).toFixed(1) : 0;
+                html += `
+                    <tr>
+                        <td><strong>${suit}</strong></td>
+                        <td>${stats.total}</td>
+                        <td class="${parseFloat(winRate) > 50 ? 'positive' : 'negative'}">${winRate}%</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="scoreboard">
+                        <h4>Player Suit Preferences</h4>
+                        <table class="score-table">
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    <th>Favorite Suit</th>
+                                    <th>Success Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            Object.entries(suitStats.byPlayer).forEach(([player, suits]) => {
+                const favoriteData = Object.entries(suits)
+                    .reduce((max, [suit, stats]) => stats.total > max.total ? {suit, ...stats} : max, {suit: 'None', total: 0, wins: 0});
+                const successRate = favoriteData.total > 0 ? ((favoriteData.wins / favoriteData.total) * 100).toFixed(1) : 0;
+                
+                html += `
+                    <tr>
+                        <td><strong>${player}</strong></td>
+                        <td>${favoriteData.suit} (${favoriteData.total}x)</td>
+                        <td class="${parseFloat(successRate) > 50 ? 'positive' : 'negative'}">${successRate}%</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            statsDiv.innerHTML = html;
+        }
+        
+        function calculateSuitCallingStats(sessions) {
+            const overall = {
+                'Hearts': {wins: 0, total: 0},
+                'Spades': {wins: 0, total: 0},
+                'Clubs': {wins: 0, total: 0}
+            };
+            
+            const byPlayer = {};
+            
+            sessions.forEach(session => {
+                session.hands.forEach(hand => {
+                    if (hand.calledSuit) {
+                        const suit = hand.calledSuit;
+                        const won = hand.points >= 61;
+                        
+                        // Overall stats
+                        if (!overall[suit]) overall[suit] = {wins: 0, total: 0};
+                        overall[suit].total++;
+                        if (won) overall[suit].wins++;
+                        
+                        // Player stats
+                        const picker = hand.picker;
+                        if (!byPlayer[picker]) byPlayer[picker] = {};
+                        if (!byPlayer[picker][suit]) byPlayer[picker][suit] = {wins: 0, total: 0};
+                        byPlayer[picker][suit].total++;
+                        if (won) byPlayer[picker][suit].wins++;
+                    }
+                });
+            });
+            
+            return {overall, byPlayer};
+        }
+        
+        function exportAllData() {
+            const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+            const profiles = JSON.parse(localStorage.getItem('sheepsheadProfiles') || '{}');
+            
+            const data = {
+                sessions,
+                profiles,
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sheepshead_all_data_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function exportSession(sessionId) {
+            const sessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+            const session = sessions.find(s => s.id === sessionId);
+            
+            if (!session) return;
+            
+            const blob = new Blob([JSON.stringify(session, null, 2)], { type: 'application/json' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sheepshead_session_${session.date}.json`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+        
+        function importData() {
+            document.getElementById('importFile').click();
+        }
+        
+        function handleImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.sessions && Array.isArray(data.sessions)) {
+                        const existingSessions = JSON.parse(localStorage.getItem('sheepsheadSessions') || '[]');
+                        const merged = [...existingSessions];
+                        
+                        data.sessions.forEach(newSession => {
+                            const existingIndex = merged.findIndex(s => s.id === newSession.id);
+                            if (existingIndex >= 0) {
+                                merged[existingIndex] = newSession;
+                            } else {
+                                merged.push(newSession);
+                            }
+                        });
+                        
+                        localStorage.setItem('sheepsheadSessions', JSON.stringify(merged));
+                    }
+                    
+                    if (data.profiles && typeof data.profiles === 'object') {
+                        const existingProfiles = JSON.parse(localStorage.getItem('sheepsheadProfiles') || '{}');
+                        const mergedProfiles = { ...existingProfiles, ...data.profiles };
+                        localStorage.setItem('sheepsheadProfiles', JSON.stringify(mergedProfiles));
+                    }
+                    
+                    alert('Data imported successfully!');
+                    loadHistoricalData();
+                    calculateAllTimeStats();
+                } catch (error) {
+                    alert('Error importing data: Invalid file format');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('sessionModal');
+            if (event.target === modal) {
+                closeSessionModal();
+            }
+        }
         
         function initializePlayerStats() {
             playerStats = {};
