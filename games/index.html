@@ -609,6 +609,13 @@
                             <label for="pickerPoints">Points:</label>
                             <input type="number" id="pickerPoints" min="0" max="120" placeholder="0-120">
                         </div>
+                        
+                        <div class="form-row">
+                            <label>
+                                <input type="checkbox" id="isDoubler" onchange="updateHandTypeOptions()" style="width: auto; margin-right: 8px;">
+                                Doubler (Nobody picked)
+                            </label>
+                        </div>
                     </div>
                     
                     <div class="control-group">
@@ -744,6 +751,8 @@
         let fiveHandSessions = []; // Track each 5-hand session
         let currentSessionNumber = 1;
         let totalPlayerDebts = {}; // Running total of what each player owes
+        let nextHandIsDoubled = false; // Whether the next hand should be doubled
+        let currentHandMultiplier = 1; // Current hand scoring multiplier (always 2 if doubled)
 
         function addCustomPlayer() {
             const nameInput = document.getElementById('playerName');
@@ -871,6 +880,17 @@
         }
 
         function scoreHand() {
+            const isDoubler = document.getElementById('isDoubler').checked;
+            
+            // Determine if this hand is doubled (from previous doubler)
+            currentHandMultiplier = nextHandIsDoubled ? 2 : 1;
+            
+            if (isDoubler) {
+                handleDoubler();
+                return;
+            }
+            
+            // Normal hand logic
             const picker = document.getElementById('picker').value;
             const partner = document.getElementById('partner').value;
             const points = parseInt(document.getElementById('pickerPoints').value);
@@ -895,12 +915,15 @@
                 return;
             }
             
-            const handResult = calculateScores(picker, partner, points, wrapped, reWrapped, calledSuit, wrappedBy, reWrappedBy);
+            const handResult = calculateScores(picker, partner, points, wrapped, reWrapped, calledSuit, wrappedBy, reWrappedBy, 'normal', currentHandMultiplier);
             hands.push(handResult);
             
             updatePlayerStats(handResult);
             updateScoreTable();
             updateStatsTable();
+            
+            // Reset the doubler flag after using it
+            nextHandIsDoubled = false;
             
             // Check if we've completed a 5-hand session
             if (currentHand % 5 === 0) {
@@ -911,7 +934,7 @@
             currentHand++;
         }
 
-        function calculateScores(picker, partner, points, wrapped = false, reWrapped = false, calledSuit = '', wrappedBy = '', reWrappedBy = '') {
+        function calculateScores(picker, partner, points, wrapped = false, reWrapped = false, calledSuit = '', wrappedBy = '', reWrappedBy = '', handType = 'normal', multiplier = 1) {
             const hand = {
                 number: currentHand,
                 picker: picker,
@@ -922,6 +945,8 @@
                 wrappedBy: wrappedBy,
                 reWrappedBy: reWrappedBy,
                 calledSuit: calledSuit,
+                handType: handType,
+                multiplier: multiplier,
                 scores: {}
             };
             
@@ -937,13 +962,17 @@
             if (reWrapped) basePoints *= 2;
             
             players.forEach(player => {
+                let score = 0;
                 if (player === picker) {
-                    hand.scores[player] = pickerTeamWon ? basePoints * 2 : -basePoints * 2;
+                    score = pickerTeamWon ? basePoints * 2 : -basePoints * 2;
                 } else if (player === partner) {
-                    hand.scores[player] = pickerTeamWon ? basePoints : -basePoints;
+                    score = pickerTeamWon ? basePoints : -basePoints;
                 } else {
-                    hand.scores[player] = pickerTeamWon ? -basePoints : basePoints;
+                    score = pickerTeamWon ? -basePoints : basePoints;
                 }
+                
+                // Apply doubler multiplier
+                hand.scores[player] = score * multiplier;
             });
             
             let description = `${picker}+${partner} ${pickerTeamWon ? 'WON' : 'LOST'} (${points} pts, called ${calledSuit})`;
@@ -951,6 +980,7 @@
             else if (schneider) description += ' SCHNEIDER';
             if (wrapped) description += ` WRAPPED by ${wrappedBy}`;
             if (reWrapped) description += ` RE-WRAPPED by ${reWrappedBy}`;
+            if (multiplier > 1) description += ` DOUBLER x${multiplier}`;
             
             hand.description = description;
             
@@ -964,7 +994,8 @@
             // Update session info
             const handsInCurrentSession = ((currentHand - 1) % 5) + 1;
             const handsRemaining = 5 - ((currentHand - 1) % 5);
-            sessionInfo.innerHTML = `Session ${currentSessionNumber} - Hand ${handsInCurrentSession} of 5 (${handsRemaining - 1} hands remaining)`;
+            const doublerInfo = nextHandIsDoubled ? ` | NEXT HAND DOUBLED` : (currentHandMultiplier > 1 ? ` | THIS HAND DOUBLED` : '');
+            sessionInfo.innerHTML = `Session ${currentSessionNumber} - Hand ${handsInCurrentSession} of 5 (${handsRemaining - 1} hands remaining)${doublerInfo}`;
             
             const totals = {};
             players.forEach(p => totals[p] = 0);
@@ -1010,6 +1041,59 @@
             
             tbody.innerHTML = html;
         }
+        
+        function updateHandTypeOptions() {
+            const isDoubler = document.getElementById('isDoubler').checked;
+            const basicHandInfo = document.querySelector('.control-group:has(#picker)');
+            const wrapSection = document.querySelector('.control-group:has(#wrapped)');
+            
+            if (isDoubler) {
+                // Hide all normal hand inputs for doublers
+                basicHandInfo.style.display = 'none';
+                wrapSection.style.display = 'none';
+            } else {
+                // Show all inputs for normal hands
+                basicHandInfo.style.display = 'block';
+                wrapSection.style.display = 'block';
+            }
+        }
+        
+        function handleDoubler() {
+            // Create doubler hand record
+            const hand = {
+                number: currentHand,
+                handType: 'doubler',
+                multiplier: 0, // Doubler hands themselves don't score
+                picker: null,
+                partner: null,
+                points: 0,
+                calledSuit: null,
+                scores: {}
+            };
+            
+            // No scoring for doubler hands
+            players.forEach(player => {
+                hand.scores[player] = 0;
+            });
+            
+            hand.description = `DOUBLER - Everyone passed, next hand doubled`;
+            
+            hands.push(hand);
+            
+            // Set flag so the NEXT hand will be doubled
+            nextHandIsDoubled = true;
+            
+            updateScoreTable();
+            
+            alert(`DOUBLER! Everyone passed.
+
+Next hand will be worth 2x points!
+
+Dealer redeals now...`);
+            
+            clearHand();
+            currentHand++;
+        }
 
         function clearHand() {
             document.getElementById('picker').value = '';
@@ -1020,7 +1104,9 @@
             document.getElementById('wrappedBy').value = '';
             document.getElementById('reWrappedBy').value = '';
             document.getElementById('calledSuit').value = '';
+            document.getElementById('isDoubler').checked = false;
             updatePartnerOptions();
+            updateHandTypeOptions();
         }
 
         function newGame() {
@@ -1031,6 +1117,8 @@
                 fiveHandSessions = [];
                 currentSessionNumber = 1;
                 totalPlayerDebts = {};
+                nextHandIsDoubled = false;
+                currentHandMultiplier = 1;
                 document.getElementById('setup').classList.remove('hidden');
                 document.getElementById('gameSection').classList.add('hidden');
                 document.getElementById('settlementSection').style.display = 'none';
@@ -1150,6 +1238,8 @@
             fiveHandSessions = [];
             currentSessionNumber = 1;
             totalPlayerDebts = {};
+            nextHandIsDoubled = false;
+            currentHandMultiplier = 1;
             players.forEach(player => {
                 totalPlayerDebts[player] = 0;
             });
