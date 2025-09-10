@@ -773,8 +773,8 @@
         let fiveHandSessions = []; // Track each 5-hand session
         let currentSessionNumber = 1;
         let totalPlayerDebts = {}; // Running total of what each player owes
-        let nextHandIsDoubled = false; // Whether the next hand should be doubled
-        let currentHandMultiplier = 1; // Current hand scoring multiplier (always 2 if doubled)
+        let doublerQueue = 0; // Number of doubled hands queued up
+        let currentHandMultiplier = 1; // Current hand scoring multiplier
 
         function addCustomPlayer() {
             const nameInput = document.getElementById('playerName');
@@ -967,8 +967,8 @@
         function scoreHand() {
             const isDoubler = document.getElementById('isDoubler').checked;
             
-            // Determine if this hand is doubled (from previous doubler)
-            currentHandMultiplier = nextHandIsDoubled ? 2 : 1;
+            // Check if this hand should be doubled from the queue
+            currentHandMultiplier = doublerQueue > 0 ? 2 : 1;
             
             if (isDoubler) {
                 handleDoubler();
@@ -1031,8 +1031,10 @@
             updateScoreTable();
             updateStatsTable();
             
-            // Reset the doubler flag after using it
-            nextHandIsDoubled = false;
+            // Consume one doubler from the queue if this was a doubled hand
+            if (currentHandMultiplier > 1) {
+                doublerQueue--;
+            }
             
             // Check if we've completed a 5-hand session
             if (currentHand % 5 === 0) {
@@ -1112,7 +1114,7 @@
             // Update session info
             const handsInCurrentSession = ((currentHand - 1) % 5) + 1;
             const handsRemaining = 5 - ((currentHand - 1) % 5);
-            const doublerInfo = nextHandIsDoubled ? ` | NEXT HAND DOUBLED` : (currentHandMultiplier > 1 ? ` | THIS HAND DOUBLED` : '');
+            const doublerInfo = doublerQueue > 0 ? ` | ${doublerQueue} DOUBLED HAND${doublerQueue > 1 ? 'S' : ''} QUEUED` : (currentHandMultiplier > 1 ? ` | THIS HAND DOUBLED` : '');
             sessionInfo.innerHTML = `Session ${currentSessionNumber} - Hand ${handsInCurrentSession} of 5 (${handsRemaining - 1} hands remaining)${doublerInfo}`;
             
             // Update current hand title
@@ -1196,12 +1198,13 @@
         }
         
         function handleDoubler() {
-            // Set flag so the NEXT hand will be doubled
-            nextHandIsDoubled = true;
+            // Add one doubled hand to the queue
+            doublerQueue++;
             
+            const queueText = doublerQueue === 1 ? "Next hand" : `Next ${doublerQueue} hands`;
             alert(`DOUBLER! Everyone passed.
 
-Next hand will be worth 2x points!
+${queueText} will be worth 2x points!
 
 Dealer redeals now...`);
             
@@ -1215,13 +1218,14 @@ Dealer redeals now...`);
             let title = `Current Hand`;
             let isDoubler = false;
             
-            if (nextHandIsDoubled && currentHandMultiplier > 1) {
-                // This shouldn't happen, but just in case
-                title += ` - DOUBLED (2x)`;
+            if (doublerQueue > 0 && currentHandMultiplier > 1) {
+                // This hand is doubled and more are queued
+                title += ` - DOUBLED (${doublerQueue} more queued)`;
                 isDoubler = true;
-            } else if (nextHandIsDoubled) {
-                // Previous hand was a doubler, this hand will be doubled
-                title += ` - DOUBLED (2x)`;
+            } else if (doublerQueue > 0) {
+                // Doubled hands are queued for upcoming hands
+                const queueText = doublerQueue === 1 ? "1 doubled hand" : `${doublerQueue} doubled hands`;
+                title += ` - ${queueText.toUpperCase()} QUEUED`;
                 isDoubler = true;
             } else if (currentHandMultiplier > 1) {
                 // Currently scoring a doubled hand
@@ -1263,7 +1267,7 @@ Dealer redeals now...`);
                 fiveHandSessions = [];
                 currentSessionNumber = 1;
                 totalPlayerDebts = {};
-                nextHandIsDoubled = false;
+                doublerQueue = 0;
                 currentHandMultiplier = 1;
                 currentHandDealer = null;
                 document.getElementById('setup').classList.remove('hidden');
@@ -1374,7 +1378,7 @@ Dealer redeals now...`);
             fiveHandSessions = [];
             currentSessionNumber = 1;
             totalPlayerDebts = {};
-            nextHandIsDoubled = false;
+            doublerQueue = 0;
             currentHandMultiplier = 1;
             currentHandDealer = null;
             players.forEach(player => {
