@@ -1086,8 +1086,15 @@
             });
             
             let description = `${picker}+${partner} ${pickerTeamWon ? 'WON' : 'LOST'} (${points} pts, called ${calledSuit})`;
-            if (schwarz) description += ' NO TRICK';
-            else if (schneider) description += ' SCHNEIDER';
+            if (schwarz) {
+                description += ' NO TRICK';
+            } else if (schneider) {
+                if (points >= 91) {
+                    description += ' NO SCHNEIDER'; // Losing team (opponents) got <30 points
+                } else {
+                    description += ' SCHNEIDER'; // Losing team (picker+partner) got <30 points
+                }
+            }
             if (wrapped) description += ` WRAPPED by ${wrappedBy}`;
             if (reWrapped) description += ` RE-WRAPPED by ${reWrappedBy}`;
             if (multiplier > 1) description += ` DOUBLER x${multiplier}`;
