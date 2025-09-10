@@ -887,33 +887,37 @@
             const shouldExcludeDealer = players.length > 5;
             
             // Update picker dropdown
-            if (dealer) {
+            if (dealer || !shouldExcludeDealer) {
                 let availableForPicker = players;
-                if (shouldExcludeDealer) {
+                if (shouldExcludeDealer && dealer) {
                     availableForPicker = players.filter(p => p !== dealer);
                 }
                 picker.innerHTML = '<option value="">Select Picker</option>' + 
                     availableForPicker.map(p => `<option value="${p}">${p}</option>`).join('');
             } else {
+                // Only show "Select Dealer First" when we have 6+ players and no dealer selected
                 picker.innerHTML = '<option value="">Select Dealer First</option>';
             }
             
             // Update partner dropdown - exclude current picker and dealer (only if 6+ players)
             const currentPicker = picker.value;
-            if (dealer) {
+            if (dealer || !shouldExcludeDealer) {
                 let availableForPartner = players.filter(p => p !== currentPicker);
-                if (shouldExcludeDealer) {
+                if (shouldExcludeDealer && dealer) {
                     availableForPartner = availableForPartner.filter(p => p !== dealer);
                 }
                 partner.innerHTML = '<option value="">Select Partner</option>' + 
                     availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
             } else {
+                // Only show "Select Dealer First" when we have 6+ players and no dealer selected
                 partner.innerHTML = '<option value="">Select Dealer First</option>';
             }
             
-            // Clear picker and partner selections when dealer changes
-            picker.value = '';
-            partner.value = '';
+            // Clear picker and partner selections when dealer changes (only if dealer exclusion applies)
+            if (shouldExcludeDealer) {
+                picker.value = '';
+                partner.value = '';
+            }
         }
 
         function setupScoreTable() {
@@ -950,13 +954,13 @@
             const calledSuit = document.getElementById('calledSuit').value;
             const handDealer = document.getElementById('handDealer').value;
             
-            if (!handDealer) {
+            if (!handDealer && players.length > 5) {
                 alert('Please select the dealer first');
                 return;
             }
             
-            if (!picker || !partner || isNaN(points) || !calledSuit) {
-                alert('Please select picker, partner, points, and called suit');
+            if (!picker || !partner || isNaN(points) || !calledSuit || !handDealer) {
+                alert('Please select picker, partner, points, called suit, and dealer');
                 return;
             }
             
