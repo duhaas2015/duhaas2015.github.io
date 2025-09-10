@@ -883,19 +883,28 @@
             const picker = document.getElementById('picker');
             const partner = document.getElementById('partner');
             
-            // Update picker dropdown - exclude dealer
+            // Only exclude dealer if there are more than 5 players
+            const shouldExcludeDealer = players.length > 5;
+            
+            // Update picker dropdown
             if (dealer) {
-                const availableForPicker = players.filter(p => p !== dealer);
+                let availableForPicker = players;
+                if (shouldExcludeDealer) {
+                    availableForPicker = players.filter(p => p !== dealer);
+                }
                 picker.innerHTML = '<option value="">Select Picker</option>' + 
                     availableForPicker.map(p => `<option value="${p}">${p}</option>`).join('');
             } else {
                 picker.innerHTML = '<option value="">Select Dealer First</option>';
             }
             
-            // Update partner dropdown - exclude dealer and current picker
+            // Update partner dropdown - exclude current picker and dealer (only if 6+ players)
             const currentPicker = picker.value;
             if (dealer) {
-                const availableForPartner = players.filter(p => p !== dealer && p !== currentPicker);
+                let availableForPartner = players.filter(p => p !== currentPicker);
+                if (shouldExcludeDealer) {
+                    availableForPartner = availableForPartner.filter(p => p !== dealer);
+                }
                 partner.innerHTML = '<option value="">Select Partner</option>' + 
                     availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
             } else {
