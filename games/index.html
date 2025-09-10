@@ -883,6 +883,10 @@
             const picker = document.getElementById('picker');
             const partner = document.getElementById('partner');
             
+            // Store current values before updating dropdowns
+            const currentPickerValue = picker.value;
+            const currentPartnerValue = partner.value;
+            
             // Only exclude dealer if there are more than 5 players
             const shouldExcludeDealer = players.length > 5;
             
@@ -894,29 +898,33 @@
                 }
                 picker.innerHTML = '<option value="">Select Picker</option>' + 
                     availableForPicker.map(p => `<option value="${p}">${p}</option>`).join('');
+                
+                // Restore picker value if it's still valid
+                if (availableForPicker.includes(currentPickerValue)) {
+                    picker.value = currentPickerValue;
+                }
             } else {
                 // Only show "Select Dealer First" when we have 6+ players and no dealer selected
                 picker.innerHTML = '<option value="">Select Dealer First</option>';
             }
             
             // Update partner dropdown - exclude current picker and dealer (only if 6+ players)
-            const currentPicker = picker.value;
+            const actualPickerValue = picker.value;
             if (dealer || !shouldExcludeDealer) {
-                let availableForPartner = players.filter(p => p !== currentPicker);
+                let availableForPartner = players.filter(p => p !== actualPickerValue);
                 if (shouldExcludeDealer && dealer) {
                     availableForPartner = availableForPartner.filter(p => p !== dealer);
                 }
                 partner.innerHTML = '<option value="">Select Partner</option>' + 
                     availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
+                
+                // Restore partner value if it's still valid
+                if (availableForPartner.includes(currentPartnerValue)) {
+                    partner.value = currentPartnerValue;
+                }
             } else {
                 // Only show "Select Dealer First" when we have 6+ players and no dealer selected
                 partner.innerHTML = '<option value="">Select Dealer First</option>';
-            }
-            
-            // Clear picker and partner selections when dealer changes (only if dealer exclusion applies)
-            if (shouldExcludeDealer) {
-                picker.value = '';
-                partner.value = '';
             }
         }
 
