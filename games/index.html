@@ -890,12 +890,28 @@
             // Only exclude dealer if there are more than 5 players
             const shouldExcludeDealer = players.length > 5;
             
-            // Update picker dropdown
-            if (dealer || !shouldExcludeDealer) {
-                let availableForPicker = players;
-                if (shouldExcludeDealer && dealer) {
-                    availableForPicker = players.filter(p => p !== dealer);
+            // With 5 players, dealer can be picker/partner, so no need to rebuild dropdowns
+            if (!shouldExcludeDealer) {
+                // Just update partner dropdown to exclude current picker
+                const actualPickerValue = picker.value;
+                if (actualPickerValue) {
+                    let availableForPartner = players.filter(p => p !== actualPickerValue);
+                    partner.innerHTML = '<option value="">Select Partner</option>' + 
+                        availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
+                    
+                    // Restore partner value if it's still valid
+                    if (availableForPartner.includes(currentPartnerValue)) {
+                        partner.value = currentPartnerValue;
+                    }
                 }
+                return;
+            }
+            
+            // With 6+ players, need to exclude dealer from picker/partner options
+            
+            // Update picker dropdown
+            if (dealer) {
+                let availableForPicker = players.filter(p => p !== dealer);
                 picker.innerHTML = '<option value="">Select Picker</option>' + 
                     availableForPicker.map(p => `<option value="${p}">${p}</option>`).join('');
                 
@@ -904,17 +920,14 @@
                     picker.value = currentPickerValue;
                 }
             } else {
-                // Only show "Select Dealer First" when we have 6+ players and no dealer selected
+                // Show "Select Dealer First" when we have 6+ players and no dealer selected
                 picker.innerHTML = '<option value="">Select Dealer First</option>';
             }
             
-            // Update partner dropdown - exclude current picker and dealer (only if 6+ players)
+            // Update partner dropdown - exclude current picker and dealer
             const actualPickerValue = picker.value;
-            if (dealer || !shouldExcludeDealer) {
-                let availableForPartner = players.filter(p => p !== actualPickerValue);
-                if (shouldExcludeDealer && dealer) {
-                    availableForPartner = availableForPartner.filter(p => p !== dealer);
-                }
+            if (dealer) {
+                let availableForPartner = players.filter(p => p !== actualPickerValue && p !== dealer);
                 partner.innerHTML = '<option value="">Select Partner</option>' + 
                     availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
                 
@@ -923,7 +936,7 @@
                     partner.value = currentPartnerValue;
                 }
             } else {
-                // Only show "Select Dealer First" when we have 6+ players and no dealer selected
+                // Show "Select Dealer First" when we have 6+ players and no dealer selected
                 partner.innerHTML = '<option value="">Select Dealer First</option>';
             }
         }
