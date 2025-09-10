@@ -705,8 +705,9 @@
                     <thead>
                         <tr>
                             <th>Player</th>
-                            <th>Record</th>
+                            <th>Overall Record</th>
                             <th>Win %</th>
+                            <th>Picker Record</th>
                             <th>Times Picked</th>
                             <th>Times Partner</th>
                             <th>Doublers Won</th>
@@ -2113,6 +2114,8 @@ Check console for detailed info.`);
                 playerStats[player] = {
                     wins: 0,
                     losses: 0,
+                    pickerWins: 0,
+                    pickerLosses: 0,
                     timesPicked: 0,
                     timesPartner: 0,
                     totalScore: 0,
@@ -2135,9 +2138,11 @@ Check console for detailed info.`);
                     stats.timesPicked++;
                     if (pickerTeamWon) {
                         stats.wins++;
+                        stats.pickerWins++;
                         if (isDoubler) stats.doublersWon++;
                     } else {
                         stats.losses++;
+                        stats.pickerLosses++;
                     }
                 } else if (player === hand.partner) {
                     stats.timesPartner++;
@@ -2165,10 +2170,13 @@ Check console for detailed info.`);
                 const avgScore = stats.handsPlayed > 0 ? 
                     (stats.totalScore / stats.handsPlayed).toFixed(1) : '0.0';
                 
+                const pickerRecord = stats.timesPicked > 0 ? `${stats.pickerWins}-${stats.pickerLosses}` : '0-0';
+                
                 html += `<tr>
                     <td><strong>${player}</strong></td>
                     <td>${stats.wins}-${stats.losses}</td>
                     <td>${winPercentage}%</td>
+                    <td>${pickerRecord}</td>
                     <td>${stats.timesPicked}</td>
                     <td>${stats.timesPartner}</td>
                     <td><strong>${stats.doublersWon}</strong></td>
