@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sheepshead Scoring App - Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .nav-link {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            color: #34495e;
+            font-size: 1.8em;
+            margin: 25px 0 15px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .feature-card {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-card h4 {
+            color: #2c3e50;
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-card .emoji {
+            font-size: 1.5em;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .checkmark {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .screenshot {
+            background: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin: 20px 0;
+        }
+        
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-table th {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .stats-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .stats-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .workflow {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .workflow h4 {
+            color: #1565c0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+        }
+        
+        .step-number {
+            background: #2196F3;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid #4CAF50;
+            margin: 20px 0;
+        }
+        
+        .highlight h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .toc {
+            background: linear-gradient(145deg, #fff3e0, #ffe0b2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .toc h3 {
+            color: #e65100;
+            margin-bottom: 15px;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+        }
+        
+        .toc a {
+            color: #bf360c;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .toc a:hover {
+            color: #d84315;
+            text-decoration: underline;
+        }
+        
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🃏 Sheepshead Scoring App</h1>
+            <p>Complete Documentation & Capabilities Guide</p>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">🎮 Launch App</a>
+                <a href="#features" class="nav-link">🎯 Features</a>
+                <a href="#statistics" class="nav-link">📊 Statistics</a>
+                <a href="#examples" class="nav-link">💡 Examples</a>
+            </div>
+        </div>
+
+        <div class="section toc">
+            <h3>📋 Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">🔍 App Overview</a></li>
+                <li><a href="#features">🎯 Core Features</a></li>
+                <li><a href="#gameplay">🎮 Gameplay Features</a></li>
+                <li><a href="#statistics">📊 Statistics & Analytics</a></li>
+                <li><a href="#data-management">💾 Data Management</a></li>
+                <li><a href="#examples">💡 Usage Examples</a></li>
+                <li><a href="#technical">🔧 Technical Capabilities</a></li>
+                <li><a href="#troubleshooting">❓ Troubleshooting</a></li>
+            </ul>
+        </div>
+
+        <div class="section" id="overview">
+            <h2>🔍 App Overview</h2>
+            <p>The Sheepshead Scoring App is a comprehensive web-based solution designed specifically for groups who regularly play sheepshead. It transforms the traditional pen-and-paper scoring into a digital experience with advanced analytics, automatic calculations, and persistent data storage.</p>
+            
+            <div class="highlight">
+                <h4>🎯 Perfect For</h4>
+                <p><strong>Regular Game Groups</strong> • <strong>Tournament Play</strong> • <strong>Casual Players</strong> • <strong>Statistics Enthusiasts</strong></p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="emoji">⚡</span>Instant Setup</h4>
+                    <p>No installation required - runs directly in your web browser. Works on desktop, tablet, and mobile devices.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">🧠</span>Smart Logic</h4>
+                    <p>Implements all sheepshead rules automatically, including complex doubler mechanics and schneider calculations.</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">📊</span>Rich Analytics</h4>
+                    <p>Detailed statistics tracking overall performance, picking success, and historical trends.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="features">
+            <h2>🎯 Core Features</h2>
+            
+            <h3>👥 Player Management</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="emoji">🎭</span>Preset Players</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>7 predefined regular players</li>
+                        <li><span class="checkmark">✓</span>Quick selection with checkboxes</li>
+                        <li><span class="checkmark">✓</span>Instant game setup</li>
+                        <li><span class="checkmark">✓</span>Names: Duane, Nate, Adam, Jim, Rick, Jeff, Todd</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">➕</span>Custom Players</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Add your own players</li>
+                        <li><span class="checkmark">✓</span>Maximum 8 players total</li>
+                        <li><span class="checkmark">✓</span>Remove players as needed</li>
+                        <li><span class="checkmark">✓</span>Flexible game composition</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">🪑</span>Sitting Out</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Automatic with 6+ players</li>
+                        <li><span class="checkmark">✓</span>Dealer sits out (6+ players)</li>
+                        <li><span class="checkmark">✓</span>Smart dropdown filtering</li>
+                        <li><span class="checkmark">✓</span>No manual management needed</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="workflow">
+                <h4>🚀 Quick Start Workflow</h4>
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <div>Select 5+ players from preset list or add custom players</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <div>Click "Start Game" - app automatically sets up scoring interface</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <div>Begin recording hands immediately with smart form validation</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="gameplay">
+            <h2>🎮 Gameplay Features</h2>
+
+            <h3>💰 Scoring System</h3>
+            <div class="highlight">
+                <h4>Dollar-Based Display</h4>
+                <p>All points are displayed as dollars ($1/point) making settlement calculations crystal clear. No more mental math - just read the numbers!</p>
+            </div>
+
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Hand Type</th>
+                        <th>Base Points</th>
+                        <th>With Wrap</th>
+                        <th>With Re-wrap</th>
+                        <th>Doubler (2x)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Normal Win/Loss</td>
+                        <td>$1</td>
+                        <td>$2</td>
+                        <td>$4</td>
+                        <td>$2</td>
+                    </tr>
+                    <tr>
+                        <td>Schneider</td>
+                        <td>$2</td>
+                        <td>$4</td>
+                        <td>$8</td>
+                        <td>$4</td>
+                    </tr>
+                    <tr>
+                        <td>No Trick (Schwarz)</td>
+                        <td>$3</td>
+                        <td>$6</td>
+                        <td>$12</td>
+                        <td>$6</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>🎲 Advanced Doubler System</h3>
+            <div class="feature-card">
+                <h4><span class="emoji">🔄</span>Doubler Queue Mechanics</h4>
+                <p>Unlike traditional systems that compound multipliers, this app correctly implements doubler queueing:</p>
+                <ul class="feature-list">
+                    <li><span class="checkmark">✓</span><strong>1 Doubler</strong> → Next 1 hand is 2x</li>
+                    <li><span class="checkmark">✓</span><strong>3 Doublers</strong> → Next 3 hands are each 2x</li>
+                    <li><span class="checkmark">✓</span><strong>Visual Queue</strong> → "3 DOUBLED HANDS QUEUED"</li>
+                    <li><span class="checkmark">✓</span><strong>Auto-Consume</strong> → Queue decrements as doubled hands are played</li>
+                </ul>
+            </div>
+
+            <div class="screenshot">
+                <p>📱 <em>Screenshot: Doubler queue showing "2 DOUBLED HANDS QUEUED" in session info</em></p>
+            </div>
+
+            <h3>🧮 Smart Rule Implementation</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="emoji">⚡</span>Schneider Logic</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Picker needs 31+ to avoid</li>
+                        <li><span class="checkmark">✓</span>Opponents need 30+ to avoid</li>
+                        <li><span class="checkmark">✓</span>Automatic detection</li>
+                        <li><span class="checkmark">✓</span>Correct "No Schneider" display</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">🚫</span>Schwarz Detection</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>0 or 120 points = No Trick</li>
+                        <li><span class="checkmark">✓</span>3x point multiplier</li>
+                        <li><span class="checkmark">✓</span>Automatic recognition</li>
+                        <li><span class="checkmark">✓</span>Clear display in hand details</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>📝 Hand Recording Interface</h3>
+            <div class="workflow">
+                <h4>🎯 Streamlined Hand Entry</h4>
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <div><strong>Dealer Selection</strong> - Required first with 6+ players, optional with 5</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <div><strong>Picker Choice</strong> - Auto-excludes dealer if 6+ players</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <div><strong>Partner Selection</strong> - Auto-excludes picker and dealer</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <div><strong>Points & Details</strong> - Points (0-120), called suit, wraps, doublers</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">5</div>
+                    <div><strong>Validation & Scoring</strong> - Smart error checking, instant results</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="statistics">
+            <h2>📊 Statistics & Analytics</h2>
+
+            <h3>🏆 Player Performance Tracking</h3>
+            <div class="highlight">
+                <h4>Dual Record System</h4>
+                <p>The app tracks both <strong>Overall Record</strong> (all roles) and <strong>Picker Record</strong> (picking only) to give complete performance insights.</p>
+            </div>
+
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th>Overall Record</th>
+                        <th>Picker Record</th>
+                        <th>Win %</th>
+                        <th>Times Picked</th>
+                        <th>Doublers Won</th>
+                        <th>Avg $/Hand</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Duane Haas</strong></td>
+                        <td>18-12</td>
+                        <td>8-4</td>
+                        <td>60.0%</td>
+                        <td>12</td>
+                        <td>3</td>
+                        <td>$1.25</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Adam Arndt</strong></td>
+                        <td>15-15</td>
+                        <td>6-8</td>
+                        <td>50.0%</td>
+                        <td>14</td>
+                        <td>1</td>
+                        <td>$0.50</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nate Miller</strong></td>
+                        <td>22-8</td>
+                        <td>5-2</td>
+                        <td>73.3%</td>
+                        <td>7</td>
+                        <td>2</td>
+                        <td>$2.10</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>📈 Session Analytics</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="emoji">🎯</span>Current Session</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Live hand-by-hand breakdown</li>
+                        <li><span class="checkmark">✓</span>Running session totals</li>
+                        <li><span class="checkmark">✓</span>Doublers won this session</li>
+                        <li><span class="checkmark">✓</span>Progress indicator (X of 5 hands)</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">📚</span>Historical Sessions</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Browse all completed sessions</li>
+                        <li><span class="checkmark">✓</span>Detailed session breakdowns</li>
+                        <li><span class="checkmark">✓</span>Export individual sessions</li>
+                        <li><span class="checkmark">✓</span>Date/time stamps</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">🏅</span>All-Time Rankings</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Player performance rankings</li>
+                        <li><span class="checkmark">✓</span>Called suit success rates</li>
+                        <li><span class="checkmark">✓</span>Wrap/re-wrap statistics</li>
+                        <li><span class="checkmark">✓</span>Long-term trends</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🎲 Doubler Performance</h3>
+            <div class="screenshot">
+                <p>📊 <em>Current session shows "DOUBLERS WON" row with golden highlighting for each player</em></p>
+            </div>
+            
+            <div class="highlight">
+                <h4>🌟 Why Doubler Tracking Matters</h4>
+                <p>Doublers are high-pressure, high-reward situations. Tracking who succeeds in these moments reveals clutch performance and risk management skills.</p>
+            </div>
+        </div>
+
+        <div class="section" id="data-management">
+            <h2>💾 Data Management</h2>
+
+            <h3>🔄 Automatic Session Management</h3>
+            <div class="workflow">
+                <h4>📊 5-Hand Session Cycle</h4>
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <div><strong>Hands 1-5</strong> - Record hands normally, see live totals</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <div><strong>Session Complete</strong> - Auto-alert with settlement summary</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <div><strong>New Session Starts</strong> - Fresh scoreboard, running debt tracking</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <div><strong>Historical Storage</strong> - Previous session saved to history</div>
+                </div>
+            </div>
+
+            <h3>📤 Export Capabilities</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="emoji">📊</span>Current Game Export</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>All hands with scores</li>
+                        <li><span class="checkmark">✓</span>Player totals</li>
+                        <li><span class="checkmark">✓</span>Game details and timestamps</li>
+                        <li><span class="checkmark">✓</span>CSV format for Excel/Sheets</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">📝</span>Session Export</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Individual 5-hand sessions</li>
+                        <li><span class="checkmark">✓</span>Session-specific statistics</li>
+                        <li><span class="checkmark">✓</span>Settlement information</li>
+                        <li><span class="checkmark">✓</span>Easy sharing with players</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">📚</span>Complete History Export</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>All sessions and hands</li>
+                        <li><span class="checkmark">✓</span>Complete player statistics</li>
+                        <li><span class="checkmark">✓</span>Data backup and migration</li>
+                        <li><span class="checkmark">✓</span>External analysis ready</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-block">
+# Example CSV Export Format
+Hand,Duane Haas,Nate Miller,Adam Arndt,Jim Remm,Rick Lopez,Details
+1,$2,$2,-$1,-$1,-$2,"Duane+Nate WON (75 pts, called Hearts)"
+2,-$1,-$1,$1,$1,$0,"Adam+Jim WON (63 pts, called Spades)"
+3,$4,$4,-$2,-$2,-$4,"Duane+Nate WON (92 pts, called Clubs) NO SCHNEIDER"
+            </div>
+
+            <h3>💾 Data Persistence</h3>
+            <div class="highlight">
+                <h4>🔐 Reliable Storage</h4>
+                <p><strong>Browser localStorage</strong> automatically saves every hand, surviving browser restarts, crashes, and updates. Data is immediately available when you return to the app.</p>
+            </div>
+        </div>
+
+        <div class="section" id="examples">
+            <h2>💡 Usage Examples</h2>
+
+            <h3>🎮 Example Game Scenario</h3>
+            <div class="feature-card">
+                <h4><span class="emoji">👥</span>Weekly Game Night</h4>
+                <p><strong>Players:</strong> Duane, Nate, Adam, Jim, Rick (5 players)</p>
+                
+                <div class="workflow">
+                    <h4>Session 1 Progression</h4>
+                    <div class="workflow-step">
+                        <div class="step-number">H1</div>
+                        <div><strong>Duane picks, calls Nate</strong> - Win with 68 points, called Hearts → +$1 each</div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">H2</div>
+                        <div><strong>Everyone passes</strong> → DOUBLER marked, next hand worth 2x</div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">H3</div>
+                        <div><strong>Adam picks, calls Jim</strong> - Doubled hand, lose with 45 points → -$2 each</div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">H4</div>
+                        <div><strong>Nate picks, calls Rick</strong> - Win with 95 points → +$2 each (No Schneider for opponents)</div>
+                    </div>
+                    <div class="workflow-step">
+                        <div class="step-number">H5</div>
+                        <div><strong>Jim picks, calls Adam</strong> - Wrapped by Duane, picker team wins → +$4 each</div>
+                    </div>
+                </div>
+
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Session Total</th>
+                            <th>Hands Won</th>
+                            <th>Times Picked</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Duane</td>
+                            <td>$0</td>
+                            <td>2</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Nate</td>
+                            <td>$1</td>
+                            <td>2</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Adam</td>
+                            <td>$3</td>
+                            <td>1</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Jim</td>
+                            <td>$3</td>
+                            <td>1</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Rick</td>
+                            <td>-$7</td>
+                            <td>1</td>
+                            <td>0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>📊 Statistics Insights</h3>
+            <div class="highlight">
+                <h4>🎯 What The Numbers Reveal</h4>
+                <ul class="feature-list">
+                    <li><span class="checkmark">✓</span><strong>Rick</strong> didn't pick but lost the most - conservative but unlucky</li>
+                    <li><span class="checkmark">✓</span><strong>Adam</strong> picked twice, won once - 50% picker success rate</li>
+                    <li><span class="checkmark">✓</span><strong>Nate</strong> best overall performance - good picker AND partner</li>
+                    <li><span class="checkmark">✓</span><strong>Doubler impact</strong> - Adam's loss was amplified by 2x multiplier</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section" id="technical">
+            <h2>🔧 Technical Capabilities</h2>
+
+            <h3>🌐 Platform Compatibility</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="emoji">💻</span>Desktop Browsers</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Chrome/Chromium</li>
+                        <li><span class="checkmark">✓</span>Firefox</li>
+                        <li><span class="checkmark">✓</span>Safari</li>
+                        <li><span class="checkmark">✓</span>Edge</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">📱</span>Mobile Devices</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>iOS Safari</li>
+                        <li><span class="checkmark">✓</span>Android Chrome</li>
+                        <li><span class="checkmark">✓</span>Responsive design</li>
+                        <li><span class="checkmark">✓</span>Touch-friendly interface</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">⚡</span>Performance</h4>
+                    <ul class="feature-list">
+                        <li><span class="checkmark">✓</span>Single-file architecture</li>
+                        <li><span class="checkmark">✓</span>No external dependencies</li>
+                        <li><span class="checkmark">✓</span>Instant loading</li>
+                        <li><span class="checkmark">✓</span>Offline capable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🏗️ Architecture</h3>
+            <div class="code-block">
+📁 Project Structure
+├── 📄 index.html          # Complete application
+├── 📄 docs.html           # This documentation
+└── 📄 README.md           # Project overview
+
+💾 Data Storage
+├── 🔐 localStorage         # Player stats, game history
+├── 📊 Session tracking     # 5-hand cycles
+└── 🔄 Auto-backup         # Every hand saved
+            </div>
+
+            <h3>🛡️ Data Security & Privacy</h3>
+            <div class="highlight">
+                <h4>🔒 Local-First Approach</h4>
+                <p>All data stays on your device - no servers, no accounts, no tracking. Your game data is completely private and under your control.</p>
+            </div>
+        </div>
+
+        <div class="section" id="troubleshooting">
+            <h2>❓ Troubleshooting</h2>
+
+            <h3>🚨 Common Issues & Solutions</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4><span class="emoji">⚠️</span>"Need 5+ Players"</h4>
+                    <p><strong>Problem:</strong> Can't start game</p>
+                    <p><strong>Solution:</strong> Select at least 5 players from preset list or add custom players</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">🎯</span>"Select Dealer First"</h4>
+                    <p><strong>Problem:</strong> Can't select picker/partner</p>
+                    <p><strong>Solution:</strong> With 6+ players, choose dealer before other roles</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">📚</span>Missing History</h4>
+                    <p><strong>Problem:</strong> No historical data showing</p>
+                    <p><strong>Solution:</strong> Complete at least one 5-hand session to generate history</p>
+                </div>
+                <div class="feature-card">
+                    <h4><span class="emoji">📱</span>Mobile Display Issues</h4>
+                    <p><strong>Problem:</strong> Interface too small on mobile</p>
+                    <p><strong>Solution:</strong> Rotate to landscape or zoom in browser</p>
+                </div>
+            </div>
+
+            <h3>🔧 Advanced Troubleshooting</h3>
+            <div class="workflow">
+                <h4>Data Recovery Steps</h4>
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <div>Use "Debug Storage" button to inspect raw data</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <div>Export all data as backup before making changes</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <div>Clear browser cache/cookies if data seems corrupted</div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <div>Use import function to restore from exported files</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>🎯 Ready to Revolutionize Your Game Night?</h3>
+            <p>Transform your sheepshead experience with automatic scoring, detailed analytics, and seamless session management.</p>
+            <div style="margin-top: 20px;">
+                <a href="index.html" class="nav-link">🚀 Launch Sheepshead Scoring App</a>
+            </div>
+            <p style="margin-top: 20px; color: #666;">
+                Made with ❤️ for sheepshead players everywhere
+            </p>
+        </div>
+    </div>
+</body>
+</html>
