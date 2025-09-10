@@ -586,6 +586,13 @@
                         <h4>Basic Hand Info</h4>
                         
                         <div class="form-row">
+                            <label for="handDealer">Dealer:</label>
+                            <select id="handDealer" onchange="updatePickerPartnerOptions()">
+                                <option value="">Select Dealer First</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
                             <label for="picker">Picker:</label>
                             <select id="picker" onchange="updatePartnerOptions()">
                                 <option value="">Select Picker</option>
@@ -606,13 +613,6 @@
                                 <option value="Hearts">Hearts</option>
                                 <option value="Spades">Spades</option>
                                 <option value="Clubs">Clubs (non-trump)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-row">
-                            <label for="handDealer">Dealer:</label>
-                            <select id="handDealer">
-                                <option value="">Select Dealer</option>
                             </select>
                         </div>
                         
