@@ -1061,7 +1061,8 @@
             };
             
             const pickerTeamWon = points >= 61;
-            const schneider = points >= 91 || points <= 30;
+            // Schneider logic: picker needs 31+ to avoid, opponents need 30+ to avoid
+            const schneider = (pickerTeamWon && points >= 90) || (!pickerTeamWon && points <= 30);
             const schwarz = points === 120 || points === 0;
             
             let basePoints = 1;
@@ -1089,10 +1090,10 @@
             if (schwarz) {
                 description += ' NO TRICK';
             } else if (schneider) {
-                if (points >= 91) {
-                    description += ' NO SCHNEIDER'; // Losing team (opponents) got <30 points
-                } else {
-                    description += ' SCHNEIDER'; // Losing team (picker+partner) got <30 points
+                if (pickerTeamWon && points >= 90) {
+                    description += ' NO SCHNEIDER'; // Opponents got ≤29 points (schneider'd)
+                } else if (!pickerTeamWon && points <= 30) {
+                    description += ' SCHNEIDER'; // Picker team got ≤30 points (schneider'd)
                 }
             }
             if (wrapped) description += ` WRAPPED by ${wrappedBy}`;
