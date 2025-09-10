@@ -959,8 +959,26 @@
                 return;
             }
             
-            if (!picker || !partner || isNaN(points) || !calledSuit || !handDealer) {
-                alert('Please select picker, partner, points, called suit, and dealer');
+            console.log('Validation check - picker:', picker, 'partner:', partner, 'points:', points, 'calledSuit:', calledSuit, 'handDealer:', handDealer);
+            
+            if (!picker) {
+                alert('Please select a picker');
+                return;
+            }
+            if (!partner) {
+                alert('Please select a partner');
+                return;
+            }
+            if (isNaN(points)) {
+                alert('Please enter valid points');
+                return;
+            }
+            if (!calledSuit) {
+                alert('Please select the called suit');
+                return;
+            }
+            if (!handDealer) {
+                alert('Please select the dealer');
                 return;
             }
             
