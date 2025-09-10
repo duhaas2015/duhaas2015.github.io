@@ -1,183 +1,328 @@
-# Sheepshead Scoring App
+# 🃏 Sheepshead Scoring App
 
-A comprehensive web-based scoring application for tracking sheepshead card game sessions with advanced statistics, session management, and data persistence.
+<div align="center">
 
-## Overview
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 
-This application helps groups of sheepshead players track scores, statistics, and game history across multiple sessions. It's designed specifically for the picker-calls-partner variant of sheepshead with 5+ players.
+**A comprehensive web-based scoring application for tracking sheepshead card game sessions**
 
-## Features
+*Advanced statistics • Session management • Data persistence*
 
-### Game Setup & Players
-- **Preset Players**: 7 predefined regular players (Duane Haas, Nate Miller, Adam Arndt, Jim Remm, Rick Lopez, Jeff LaValle, Todd Sobotka)
-- **Custom Players**: Add up to 8 total players per game
-- **Flexible Player Count**: Supports 5+ players with automatic dealer rotation
-- **Sitting Out**: Players can sit out hands when there are more than 5 players
+[🚀 Get Started](#-setup--installation) • [📖 Documentation](#-usage-instructions) • [🎯 Features](#-features)
 
-### Scoring System
-- **Dollar-Based Scoring**: Displays points as dollars ($1/point) for easy settlement
-- **Session Management**: Automatic 5-hand sessions with settlement summaries
-- **Running Totals**: Tracks cumulative debt/winnings across all sessions
-- **Real-Time Updates**: Live score updates during gameplay
+</div>
 
-### Hand Tracking
-- **Complete Hand Records**: Tracks picker, partner, points, called suit, dealer
-- **Wrap/Re-wrap Tracking**: Records who wrapped and re-wrapped hands
-- **Schneider Logic**: Correctly implements asymmetric schneider rules
-  - Picker team needs 31+ points to avoid schneider
-  - Opponents need 30+ points to avoid schneider
-- **Schwarz Detection**: Tracks "No Trick" hands (0 or 120 points)
+---
 
-### Doubler System
-- **Doubler Queue**: Multiple doublers stack as separate 2x hands
-- **Visual Indicators**: Shows queued doublers in session info and hand titles
-- **Proper Cascading**: 3 doublers = next 3 hands are 2x (not 8x)
+## 📋 Overview
 
-### Advanced Statistics
+This application helps groups of sheepshead players track scores, statistics, and game history across multiple sessions. Perfect for regular game nights and tournaments!
 
-#### Current Session Stats
-- **Live Scoreboard**: Real-time session totals with hand-by-hand breakdown
-- **Doubler Tracking**: Shows doublers won per player in current session
-- **Session Progress**: Displays hands remaining until settlement
+🎯 **Designed for**: Picker-calls-partner variant with 5+ players  
+💾 **Data Storage**: Automatic local storage with export capabilities  
+📱 **Platform**: Works on desktop and mobile browsers
 
-#### Player Statistics
-- **Overall Record**: Total wins-losses across all roles
-- **Picker Record**: Wins-losses specifically when picking
-- **Performance Metrics**:
+---
+
+## 🎯 Features
+
+### 👥 Game Setup & Players
+- 🎭 **Preset Players**: 7 predefined regular players ready to go
+- ➕ **Custom Players**: Add your own players (up to 8 total)
+- 🔢 **Flexible Count**: Supports 5+ players with smart dealer rotation
+- 🪑 **Sitting Out**: Automatic management when more than 5 players
+
+### 💰 Scoring System
+- 🏦 **Dollar Display**: Shows points as dollars ($1/point) for easy settlement
+- 📊 **Session Management**: Automatic 5-hand sessions with settlement alerts
+- 📈 **Running Totals**: Tracks cumulative debt/winnings across sessions
+- ⚡ **Real-Time Updates**: Live score updates as you play
+
+### 📝 Hand Tracking
+- 🎯 **Complete Records**: Picker, partner, points, called suit, dealer
+- 🌯 **Wrap Tracking**: Records who wrapped and re-wrapped hands
+- 🧮 **Smart Schneider**: Correctly implements asymmetric schneider rules
+  - 🎯 Picker team needs **31+** points to avoid schneider
+  - 🛡️ Opponents need **30+** points to avoid schneider
+- 🚫 **Schwarz Detection**: Automatic "No Trick" detection (0 or 120 points)
+
+### 🎲 Advanced Doubler System
+- 🔄 **Doubler Queue**: Multiple doublers stack as separate 2x hands
+- 👁️ **Visual Indicators**: Clear display of queued doublers
+- ➕ **Proper Logic**: 3 doublers = next 3 hands are 2x (not 8x!)
+
+### 📊 Advanced Statistics
+
+#### 🏆 Current Session Stats
+- 📋 **Live Scoreboard**: Real-time session totals with hand breakdowns
+- 🎲 **Doubler Tracking**: Shows doublers won per player this session
+- ⏱️ **Progress Display**: Shows hands remaining until settlement
+
+#### 🎯 Player Performance
+- 🏆 **Overall Record**: Total wins-losses across all roles
+- 🎯 **Picker Record**: Wins-losses specifically when picking
+- 📈 **Key Metrics**:
   - Overall win percentage
   - Times picked/partnered
-  - Doublers won (lifetime)
-  - Average score per hand
-  - Total earnings/losses
+  - 🎲 Doublers won (lifetime)
+  - 💰 Average score per hand
 
-#### Historical Data
-- **Game History**: Browse all completed 5-hand sessions
-- **Session Details**: Detailed breakdown of each historical session
-- **All-Time Stats**: Comprehensive player rankings and performance data
-- **Suit Statistics**: Analysis of called suit success rates
-- **Wrap Statistics**: Tracking of wrap/re-wrap success
+#### 📚 Historical Data
+- 📖 **Game History**: Browse all completed sessions
+- 🔍 **Session Details**: Detailed breakdown of each game
+- 🏅 **All-Time Rankings**: Comprehensive player performance
+- ♠️ **Suit Analysis**: Called suit success rates
+- 🌯 **Wrap Statistics**: Wrap/re-wrap success tracking
 
-### Data Management
-- **Local Storage**: Automatic saving of all game data
-- **Export Functions**: 
+### 💾 Data Management
+- 🔐 **Auto-Save**: Automatic saving to browser storage
+- 📤 **Export Options**: 
   - CSV export of current game
-  - CSV export of individual sessions
-  - CSV export of all historical data
-- **Import/Export**: Full data backup and restore capability
-- **Data Persistence**: Survives browser refreshes and closures
+  - Individual session exports
+  - Complete historical data export
+- 🔄 **Backup & Restore**: Full data import/export capability
+- ⚡ **Persistence**: Survives browser restarts
 
-## Game Rules Implemented
+---
 
-### Sheepshead Basics
-- **Minimum Players**: 5 players required to start
-- **Picker-Partner System**: Picker calls a partner via suit
-- **Point System**: 120 total points available
-- **Winning Threshold**: Picker team needs 61+ points to win
+## 🎮 Game Rules Implemented
 
-### Scoring Rules
-- **Base Points**: 1 point for normal win/loss
-- **Schneider**: 2 points when losing team gets ≤30 points (picker) or ≤29 points (opponents)
-- **Schwarz (No Trick)**: 3 points for complete shutout
-- **Wrapping**: Doubles the points when defense wins
-- **Re-wrapping**: Doubles again when picker team wins after wrap
-- **Doublers**: 2x multiplier for hands following "everyone passes" situations
+<table>
+<tr>
+<td width="50%">
 
-### Dealer Rules
-- **5 Players**: Dealer can pick or partner
-- **6+ Players**: Dealer sits out and cannot pick or partner
-- **Rotation**: Dealer changes each hand
+### 🎯 Sheepshead Basics
+- **👥 Players**: 5+ required to start
+- **🤝 Partnership**: Picker calls partner via suit
+- **🎯 Points**: 120 total available
+- **🏆 Win Condition**: Picker team needs 61+ points
 
-## Usage Instructions
+</td>
+<td width="50%">
 
-### Starting a Game
-1. Select preset players or add custom players (minimum 5, maximum 8)
-2. Click "Start Game" to begin
-3. Application automatically sets up scoring interface
+### 🏆 Scoring Rules
+- **📊 Base**: 1 point for normal win/loss
+- **⚡ Schneider**: 2 points (asymmetric thresholds)
+- **🚫 Schwarz**: 3 points for complete shutout
+- **🌯 Wrapping**: Doubles points when defense wins
+- **🎲 Doublers**: 2x multiplier for queued hands
 
-### Recording Hands
-1. **Select Dealer** (required first with 6+ players)
-2. **Choose Picker** from available players
-3. **Select Partner** (automatically excludes picker and dealer if applicable)
-4. **Enter Points** scored by picker team
-5. **Select Called Suit** (Hearts, Spades, or Clubs)
-6. **Mark Wraps** if applicable and select who wrapped
-7. **Mark Doublers** if everyone passed
-8. Click "Score Hand" to record
+</td>
+</tr>
+</table>
 
-### Session Management
-- Sessions automatically complete after 5 hands
-- Settlement alerts show who owes/collects money
-- New sessions start automatically
-- Access historical data via "Game History" tab
+### 🎲 Dealer Rules
+| Player Count | Dealer Role |
+|-------------|-------------|
+| **5 Players** | 🎯 Can pick or partner |
+| **6+ Players** | 🪑 Sits out (cannot pick/partner) |
 
-### Viewing Statistics
-- **Current Game Tab**: Live scoreboard and current session stats
-- **Game History Tab**: Browse and export past sessions
-- **All-Time Stats Tab**: Comprehensive player performance data
+---
 
-## Technical Details
+## 🚀 Setup & Installation
 
-### Browser Compatibility
-- Modern web browsers with JavaScript enabled
-- Local storage support required for data persistence
-- Responsive design works on desktop and mobile devices
+### 💻 Quick Start
+1. **📥 Download** the `index.html` file
+2. **🌐 Open** in any modern web browser
+3. **🎉 Start playing** - no setup required!
 
-### Data Storage
-- Uses browser localStorage for data persistence
-- Automatic backup on every hand scored
-- Data survives browser restarts and updates
+### 🌐 Web Hosting
+```bash
+# Upload to your web server
+📁 /your-website/
+  └── 📄 index.html
+  
+# Access at: https://yourdomain.com/index.html
+```
 
-### File Structure
-- Single HTML file with embedded CSS and JavaScript
-- No external dependencies required
-- Can be run locally or hosted on any web server
+### ✅ Requirements
+- 🌐 Modern web browser
+- 📱 JavaScript enabled
+- 💾 Local storage support
 
-## Setup & Installation
+---
 
-1. Download the `index.html` file
-2. Open in any modern web browser
-3. No additional setup required
+## 📖 Usage Instructions
 
-For web hosting:
-1. Upload `index.html` to your web server
-2. Access via your domain/path
-3. All functionality works immediately
+### 🎬 Starting a Game
 
-## Export Formats
+<table>
+<tr>
+<td width="30%">
 
-### CSV Exports Include
-- **Current Game**: All hands with player scores and details
-- **Session Export**: Specific 5-hand session data
-- **All Data**: Complete historical export with statistics
-- **Columns**: Hand number, player scores, game details, totals
+**1. 👥 Select Players**
+- ✅ Check preset players
+- ➕ Add custom players
+- 🎯 Minimum 5 required
 
-## Troubleshooting
+</td>
+<td width="30%">
 
-### Common Issues
-- **"Need 5+ Players"**: Add more players to player list
-- **"Select Dealer First"**: With 6+ players, dealer must be selected before picker/partner
-- **Missing History**: Check that localStorage is enabled in browser
-- **Export Issues**: Ensure browser allows file downloads
+**2. 🚀 Launch Game**
+- 🖱️ Click "Start Game"
+- ⚡ Auto-setup interface
+- 🎯 Ready to score!
 
-### Data Recovery
-- Use "Debug Storage" button to view raw data
-- Export all data regularly as backup
-- Import function can restore from exported files
+</td>
+<td width="40%">
 
-## Version History
+**3. 🎮 Start Playing**
+- 🎲 Record each hand
+- 📊 Watch live stats
+- 💰 Track winnings
 
-The application has evolved to include:
-- Advanced doubler queueing system
-- Asymmetric schneider logic
-- Comprehensive statistics tracking
-- Session-based gameplay
-- Historical data management
-- Enhanced player performance metrics
+</td>
+</tr>
+</table>
 
-## Contributing
+### 📝 Recording Hands
 
-This is a single-file application designed for ease of use and deployment. Modifications can be made directly to the HTML file.
+> **Step-by-step hand entry workflow**
 
-## License
+| Step | Action | Notes |
+|------|--------|-------|
+| 1️⃣ | **🎯 Select Dealer** | Required first with 6+ players |
+| 2️⃣ | **👤 Choose Picker** | From available players |
+| 3️⃣ | **🤝 Select Partner** | Auto-excludes picker/dealer |
+| 4️⃣ | **🎯 Enter Points** | Picker team total (0-120) |
+| 5️⃣ | **♠️ Called Suit** | Hearts, Spades, or Clubs |
+| 6️⃣ | **🌯 Mark Wraps** | If applicable + who wrapped |
+| 7️⃣ | **🎲 Mark Doublers** | If everyone passed |
+| 8️⃣ | **✅ Score Hand** | Records and updates stats |
 
-Open source - feel free to modify and distribute for personal use.
+---
+
+## 📊 Statistics Dashboard
+
+### 🏆 Performance Tracking
+
+<div align="center">
+
+| Stat Type | What It Shows | Why It Matters |
+|-----------|---------------|----------------|
+| **🎯 Overall Record** | Total W-L across all roles | General skill level |
+| **👤 Picker Record** | W-L specifically as picker | Risk assessment ability |
+| **📈 Win %** | Success rate percentage | Consistency measure |
+| **🎲 Doublers Won** | Doubled hands won | High-pressure performance |
+
+</div>
+
+### 📈 Session Management
+
+- 🔄 **Auto-Settlement**: Every 5 hands
+- 💰 **Clear Alerts**: Who owes/collects money  
+- 📊 **Running Totals**: Cumulative tracking
+- 📚 **History Access**: Browse past sessions
+
+---
+
+## 📤 Export & Backup
+
+### 📄 Available Exports
+
+```
+📊 Current Game     → All current hands + totals
+📝 Session Data     → Specific 5-hand session  
+📚 All History      → Complete database export
+🔧 Debug Info       → Raw storage data
+```
+
+### 💾 Data Recovery
+- 🔧 Use "Debug Storage" to inspect data
+- 📤 Export regularly for backups
+- 📥 Import function restores from files
+
+---
+
+## 🛠️ Troubleshooting
+
+### ❓ Common Issues
+
+<details>
+<summary>🚨 <strong>"Need 5+ Players" Error</strong></summary>
+
+**Solution**: Add more players to your game setup
+- ✅ Check at least 5 preset players
+- ➕ Add custom players if needed
+- 🎯 Click "Start Game" when ready
+
+</details>
+
+<details>
+<summary>🚨 <strong>"Select Dealer First" Message</strong></summary>
+
+**Solution**: With 6+ players, dealer must be selected first
+- 🎯 Choose dealer from dropdown
+- 👤 Then select picker
+- 🤝 Finally select partner
+
+</details>
+
+<details>
+<summary>🚨 <strong>Missing Game History</strong></summary>
+
+**Solution**: Check browser storage settings
+- 🔐 Ensure localStorage is enabled
+- 🔄 Try refreshing the browser
+- 💾 Check if you have any saved data
+
+</details>
+
+---
+
+## 🔧 Technical Details
+
+### 🏗️ Architecture
+- **📄 Single File**: Complete app in one HTML file
+- **🔧 No Dependencies**: Pure HTML/CSS/JavaScript
+- **📱 Responsive**: Works on all devices
+- **💾 Local Storage**: Browser-based persistence
+
+### 🌐 Browser Support
+- ✅ Chrome/Chromium
+- ✅ Firefox  
+- ✅ Safari
+- ✅ Edge
+- ✅ Mobile browsers
+
+---
+
+## 🎉 Version Highlights
+
+The app has evolved to include:
+
+- 🎲 **Advanced Doubler System**: Proper queueing mechanics
+- 🧮 **Smart Schneider Logic**: Asymmetric point thresholds
+- 📊 **Comprehensive Stats**: Overall vs picker performance
+- 🏆 **Session Management**: 5-hand automatic cycles
+- 📚 **Historical Tracking**: Complete game history
+- 💎 **Enhanced UI**: Beautiful, responsive design
+
+---
+
+## 🤝 Contributing
+
+This single-file application is designed for simplicity and ease of deployment. 
+
+**Want to contribute?**
+- 🔧 Make direct edits to `index.html`
+- 🧪 Test thoroughly before sharing
+- 📝 Document any new features
+
+---
+
+## 📄 License
+
+**Open Source** - Feel free to modify and distribute for personal use.
+
+---
+
+<div align="center">
+
+**🎯 Made for Sheepshead Players, by Sheepshead Players**
+
+*Happy Gaming! 🃏*
+
+</div>
