@@ -594,7 +594,7 @@
                         
                         <div class="form-row">
                             <label for="picker">Picker:</label>
-                            <select id="picker" onchange="updatePartnerOptions()">
+                            <select id="picker" onchange="updatePickerPartnerOptions()">
                                 <option value="">Select Picker</option>
                             </select>
                         </div>
@@ -864,7 +864,7 @@
             picker.innerHTML = '<option value="">Select Picker</option>' + playerOptions;
             wrappedBy.innerHTML = '<option value="">Who wrapped?</option>' + playerOptions;
             reWrappedBy.innerHTML = '<option value="">Who re-wrapped?</option>' + playerOptions;
-            handDealer.innerHTML = '<option value="">Select Dealer</option>' + playerOptions;
+            handDealer.innerHTML = '<option value="">Select Dealer First</option>' + playerOptions;
             
             setupScoreTable();
         }
@@ -876,6 +876,35 @@
             partner.innerHTML = '<option value="">Select Partner</option>' +
                 players.filter(p => p !== picker)
                     .map(p => `<option value="${p}">${p}</option>`).join('');
+        }
+        
+        function updatePickerPartnerOptions() {
+            const dealer = document.getElementById('handDealer').value;
+            const picker = document.getElementById('picker');
+            const partner = document.getElementById('partner');
+            
+            // Update picker dropdown - exclude dealer
+            if (dealer) {
+                const availableForPicker = players.filter(p => p !== dealer);
+                picker.innerHTML = '<option value="">Select Picker</option>' + 
+                    availableForPicker.map(p => `<option value="${p}">${p}</option>`).join('');
+            } else {
+                picker.innerHTML = '<option value="">Select Dealer First</option>';
+            }
+            
+            // Update partner dropdown - exclude dealer and current picker
+            const currentPicker = picker.value;
+            if (dealer) {
+                const availableForPartner = players.filter(p => p !== dealer && p !== currentPicker);
+                partner.innerHTML = '<option value="">Select Partner</option>' + 
+                    availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
+            } else {
+                partner.innerHTML = '<option value="">Select Dealer First</option>';
+            }
+            
+            // Clear picker and partner selections when dealer changes
+            picker.value = '';
+            partner.value = '';
         }
 
         function setupScoreTable() {
@@ -912,8 +941,13 @@
             const calledSuit = document.getElementById('calledSuit').value;
             const handDealer = document.getElementById('handDealer').value;
             
-            if (!picker || !partner || isNaN(points) || !calledSuit || !handDealer) {
-                alert('Please select picker, partner, points, called suit, and dealer');
+            if (!handDealer) {
+                alert('Please select the dealer first');
+                return;
+            }
+            
+            if (!picker || !partner || isNaN(points) || !calledSuit) {
+                alert('Please select picker, partner, points, and called suit');
                 return;
             }
             
@@ -1153,7 +1187,7 @@ Dealer redeals now...`);
             document.getElementById('calledSuit').value = '';
             document.getElementById('handDealer').value = '';
             document.getElementById('isDoubler').checked = false;
-            updatePartnerOptions();
+            updatePickerPartnerOptions();
             updateHandTypeOptions();
             updateCurrentHandTitle();
         }
