@@ -140,6 +140,16 @@
             background: rgba(255, 255, 255, 0.1);
             font-weight: bold;
         }
+        
+        .doublers-row {
+            background: rgba(255, 215, 0, 0.1) !important;
+            border-top: 2px solid rgba(255, 215, 0, 0.3) !important;
+        }
+        
+        .doublers-row td {
+            color: #FFD700;
+            font-weight: bold;
+        }
 
         .score-input {
             width: 80px;
@@ -699,6 +709,7 @@
                             <th>Win %</th>
                             <th>Times Picked</th>
                             <th>Times Partner</th>
+                            <th>Doublers Won</th>
                             <th>Avg Score/Hand</th>
                         </tr>
                     </thead>
@@ -1100,7 +1111,11 @@
             updateCurrentHandTitle();
             
             const totals = {};
-            players.forEach(p => totals[p] = 0);
+            const doublersWon = {};
+            players.forEach(p => {
+                totals[p] = 0;
+                doublersWon[p] = 0;
+            });
             
             let html = '';
             
@@ -1109,6 +1124,12 @@
             const currentSessionHands = hands.filter(h => h.number >= sessionStartHand);
             
             currentSessionHands.forEach(hand => {
+                // Track doublers won for this session
+                if (hand.multiplier > 1 && hand.points >= 61) {
+                    doublersWon[hand.picker]++;
+                    doublersWon[hand.partner]++;
+                }
+                
                 html += `<tr>
                     <td>${hand.number}</td>
                     ${players.map(p => {
@@ -1122,6 +1143,12 @@
             html += `<tr class="totals">
                 <td><strong>SESSION TOTAL</strong></td>
                 ${players.map(p => `<td class="${totals[p] > 0 ? 'positive' : 'negative'}"><strong>$${totals[p]}</strong></td>`).join('')}
+                <td></td>
+            </tr>`;
+            
+            html += `<tr class="doublers-row">
+                <td><strong>DOUBLERS WON</strong></td>
+                ${players.map(p => `<td><strong>${doublersWon[p]}</strong></td>`).join('')}
                 <td></td>
             </tr>`;
             
@@ -1161,31 +1188,8 @@
         }
         
         function handleDoubler() {
-            // Create doubler hand record
-            const hand = {
-                number: currentHand,
-                handType: 'doubler',
-                multiplier: 0, // Doubler hands themselves don't score
-                picker: null,
-                partner: null,
-                points: 0,
-                calledSuit: null,
-                scores: {}
-            };
-            
-            // No scoring for doubler hands
-            players.forEach(player => {
-                hand.scores[player] = 0;
-            });
-            
-            hand.description = `DOUBLER - Everyone passed, next hand doubled`;
-            
-            hands.push(hand);
-            
             // Set flag so the NEXT hand will be doubled
             nextHandIsDoubled = true;
-            
-            updateScoreTable();
             
             alert(`DOUBLER! Everyone passed.
 
@@ -1194,7 +1198,6 @@ Next hand will be worth 2x points!
 Dealer redeals now...`);
             
             clearHand();
-            currentHand++;
         }
         
         function updateCurrentHandTitle() {
@@ -2101,13 +2104,15 @@ Check console for detailed info.`);
                     timesPicked: 0,
                     timesPartner: 0,
                     totalScore: 0,
-                    handsPlayed: 0
+                    handsPlayed: 0,
+                    doublersWon: 0
                 };
             });
         }
         
         function updatePlayerStats(hand) {
             const pickerTeamWon = hand.points >= 61;
+            const isDoubler = hand.multiplier > 1;
             
             players.forEach(player => {
                 const stats = playerStats[player];
@@ -2116,12 +2121,20 @@ Check console for detailed info.`);
                 
                 if (player === hand.picker) {
                     stats.timesPicked++;
-                    if (pickerTeamWon) stats.wins++;
-                    else stats.losses++;
+                    if (pickerTeamWon) {
+                        stats.wins++;
+                        if (isDoubler) stats.doublersWon++;
+                    } else {
+                        stats.losses++;
+                    }
                 } else if (player === hand.partner) {
                     stats.timesPartner++;
-                    if (pickerTeamWon) stats.wins++;
-                    else stats.losses++;
+                    if (pickerTeamWon) {
+                        stats.wins++;
+                        if (isDoubler) stats.doublersWon++;
+                    } else {
+                        stats.losses++;
+                    }
                 } else {
                     if (!pickerTeamWon) stats.wins++;
                     else stats.losses++;
@@ -2146,6 +2159,7 @@ Check console for detailed info.`);
                     <td>${winPercentage}%</td>
                     <td>${stats.timesPicked}</td>
                     <td>${stats.timesPartner}</td>
+                    <td><strong>${stats.doublersWon}</strong></td>
                     <td class="${parseFloat(avgScore) > 0 ? 'positive' : 'negative'}">$${avgScore}</td>
                 </tr>`;
             });
