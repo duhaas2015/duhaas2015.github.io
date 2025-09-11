@@ -4,6 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sheepshead Score Tracker</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Comprehensive sheepshead card game scoring with advanced statistics and session management">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sheepshead">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-config" content="browserconfig.xml">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96x96.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128x128.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="384x384" href="icons/icon-384x384.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512x512.png">
+    
+    <!-- Standard Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16x16.png">
+    <link rel="shortcut icon" href="icons/favicon.ico">
     <style>
         * {
             margin: 0;
@@ -2185,6 +2213,175 @@ Check console for detailed info.`);
             });
             
             tbody.innerHTML = html;
+        }
+        
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    console.log('🔧 Registering service worker...');
+                    const registration = await navigator.serviceWorker.register('sw.js');
+                    console.log('✅ Service Worker registered:', registration);
+                    
+                    // Handle updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('🔄 New content available, will refresh on next visit');
+                                showUpdateAvailable();
+                            }
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('❌ Service Worker registration failed:', error);
+                }
+            });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('💾 Install prompt available');
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+        
+        function showInstallButton() {
+            // Create install button
+            const installBtn = document.createElement('button');
+            installBtn.textContent = '📱 Install App';
+            installBtn.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: linear-gradient(45deg, #4CAF50, #45a049);
+                color: white;
+                border: none;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-weight: bold;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                z-index: 1000;
+                transition: all 0.3s ease;
+                font-size: 14px;
+            `;
+            
+            installBtn.addEventListener('mouseenter', () => {
+                installBtn.style.transform = 'translateY(-2px)';
+                installBtn.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.4)';
+            });
+            
+            installBtn.addEventListener('mouseleave', () => {
+                installBtn.style.transform = 'translateY(0)';
+                installBtn.style.boxShadow = '0 4px 15px rgba(76, 175, 80, 0.3)';
+            });
+            
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`📱 Install prompt result: ${outcome}`);
+                    
+                    if (outcome === 'accepted') {
+                        console.log('✅ User accepted the install prompt');
+                    } else {
+                        console.log('❌ User dismissed the install prompt');
+                    }
+                    
+                    deferredPrompt = null;
+                    installBtn.remove();
+                }
+            });
+            
+            document.body.appendChild(installBtn);
+            
+            // Auto-hide after 30 seconds if not clicked
+            setTimeout(() => {
+                if (installBtn.parentNode) {
+                    installBtn.style.opacity = '0';
+                    setTimeout(() => installBtn.remove(), 300);
+                }
+            }, 30000);
+        }
+        
+        function showUpdateAvailable() {
+            // Show update notification
+            const updateNotification = document.createElement('div');
+            updateNotification.innerHTML = `
+                <div style="
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: linear-gradient(45deg, #2196F3, #1976D2);
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+                    z-index: 1001;
+                    max-width: 300px;
+                    font-size: 14px;
+                ">
+                    <strong>🔄 Update Available</strong><br>
+                    Refresh to get the latest features!
+                    <button onclick="window.location.reload()" style="
+                        background: white;
+                        color: #2196F3;
+                        border: none;
+                        padding: 8px 15px;
+                        border-radius: 15px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        margin-left: 10px;
+                        margin-top: 10px;
+                    ">Refresh</button>
+                </div>
+            `;
+            
+            document.body.appendChild(updateNotification);
+            
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (updateNotification.parentNode) {
+                    updateNotification.remove();
+                }
+            }, 10000);
+        }
+        
+        // Handle app shortcuts from manifest
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        
+        if (action === 'new-game') {
+            console.log('🎮 Starting new game from shortcut');
+            // Auto-start new game if no current game
+            if (!hands || hands.length === 0) {
+                document.getElementById('setup').classList.remove('hidden');
+            }
+        } else if (action === 'history') {
+            console.log('📚 Opening history from shortcut');
+            // Auto-open history tab
+            setTimeout(() => showTab('history'), 500);
+        } else if (action === 'stats') {
+            console.log('📊 Opening stats from shortcut');
+            // Auto-open stats tab
+            setTimeout(() => showTab('stats'), 500);
+        }
+        
+        // Track PWA usage
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('🎉 App installed successfully!');
+            // Track installation analytics here if needed
+        });
+        
+        // Handle PWA display mode
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('📱 Running as installed PWA');
+            document.body.classList.add('pwa-mode');
         }
     </script>
 </body>

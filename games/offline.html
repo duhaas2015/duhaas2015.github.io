@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Sheepshead Scoring App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .offline-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .offline-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        
+        .offline-title {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .offline-message {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .offline-features {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .offline-features h3 {
+            margin-bottom: 15px;
+            text-align: center;
+            color: #ffd700;
+        }
+        
+        .offline-features ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .offline-features li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .offline-features li::before {
+            content: "✓";
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .retry-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .retry-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .retry-button:active {
+            transform: translateY(0);
+        }
+        
+        .connection-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+        
+        .status-offline {
+            background: rgba(255, 152, 152, 0.2);
+            color: #ff6b6b;
+        }
+        
+        .status-online {
+            background: rgba(152, 255, 152, 0.2);
+            color: #51cf66;
+        }
+        
+        .game-access {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px dashed #ffc107;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .game-access h4 {
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+        
+        .access-button {
+            background: linear-gradient(45deg, #ffc107, #e0a800);
+            color: #333;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .access-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+        
+        @media (max-width: 480px) {
+            .offline-container {
+                padding: 30px 20px;
+            }
+            
+            .offline-title {
+                font-size: 2em;
+            }
+            
+            .offline-icon {
+                font-size: 3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📴</div>
+        
+        <h1 class="offline-title">You're Offline</h1>
+        
+        <p class="offline-message">
+            No internet connection detected, but don't worry! Your Sheepshead Scoring App works completely offline.
+        </p>
+        
+        <div class="offline-features">
+            <h3>🎯 Available Offline Features</h3>
+            <ul>
+                <li>Continue your current game</li>
+                <li>Start new games</li>
+                <li>View player statistics</li>
+                <li>Access game history</li>
+                <li>Export game data</li>
+                <li>All data saved locally</li>
+            </ul>
+        </div>
+        
+        <div class="game-access">
+            <h4>🎮 Access Your Game</h4>
+            <p>Your game data is safely stored and accessible:</p>
+            <button class="access-button" onclick="goToGame()">Open Current Game</button>
+            <button class="access-button" onclick="goToHistory()">View History</button>
+        </div>
+        
+        <div class="connection-status" id="connectionStatus">
+            <span id="statusText">🔍 Checking connection...</span>
+        </div>
+        
+        <button class="retry-button" onclick="retryConnection()">
+            🔄 Try Again
+        </button>
+    </div>
+
+    <script>
+        // Check connection status
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            const statusText = document.getElementById('statusText');
+            
+            if (navigator.onLine) {
+                statusElement.className = 'connection-status status-online';
+                statusText.textContent = '✅ Connection restored!';
+                
+                // Auto-redirect after 2 seconds
+                setTimeout(() => {
+                    window.location.href = '/games/';
+                }, 2000);
+            } else {
+                statusElement.className = 'connection-status status-offline';
+                statusText.textContent = '❌ Still offline';
+            }
+        }
+        
+        // Retry connection
+        function retryConnection() {
+            updateConnectionStatus();
+            
+            if (navigator.onLine) {
+                window.location.href = '/games/';
+            } else {
+                // Try to reload the page to check if connection is back
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        }
+        
+        // Go to game (will work offline due to service worker)
+        function goToGame() {
+            window.location.href = '/games/';
+        }
+        
+        // Go to history
+        function goToHistory() {
+            window.location.href = '/games/?action=history';
+        }
+        
+        // Listen for connection changes
+        window.addEventListener('online', () => {
+            console.log('🌐 Connection restored');
+            updateConnectionStatus();
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('📴 Connection lost');
+            updateConnectionStatus();
+        });
+        
+        // Check status on load
+        updateConnectionStatus();
+        
+        // Periodically check connection
+        setInterval(updateConnectionStatus, 5000);
+    </script>
+</body>
+</html>
