@@ -131,8 +131,8 @@ self.addEventListener('push', (event) => {
   
   const options = {
     body: event.data ? event.data.text() : 'New sheepshead game update!',
-    icon: '/games/icons/icon-192x192.png',
-    badge: '/games/icons/icon-72x72.png',
+    // icon: '/games/icons/icon-192x192.png', // Commented until icon exists
+    // badge: '/games/icons/icon-72x72.png', // Commented until icon exists
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -141,13 +141,13 @@ self.addEventListener('push', (event) => {
     actions: [
       {
         action: 'view-game',
-        title: 'View Game',
-        icon: '/games/icons/action-view.png'
+        title: 'View Game'
+        // icon: '/games/icons/action-view.png' // Commented until icon exists
       },
       {
         action: 'close',
-        title: 'Close',
-        icon: '/games/icons/action-close.png'
+        title: 'Close'
+        // icon: '/games/icons/action-close.png' // Commented until icon exists
       }
     ]
   };

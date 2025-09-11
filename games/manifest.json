@@ -11,6 +11,7 @@
   "lang": "en-US",
   "categories": ["games", "entertainment", "sports"],
   "icons": [
+    /* Icons commented out until files are created
     {
       "src": "/games/icons/icon-192x192.png",
       "sizes": "192x192",
@@ -23,59 +24,26 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
+    */
   ],
   "shortcuts": [
     {
       "name": "New Game",
       "short_name": "New Game",
       "description": "Start a new sheepshead game",
-      "url": "/games/?action=new-game",
-      "icons": [
-        {
-          "src": "/games/icons/shortcut-new-game.png",
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/games/?action=new-game"
     },
     {
       "name": "Game History",
       "short_name": "History", 
       "description": "View past game sessions",
-      "url": "/games/?action=history",
-      "icons": [
-        {
-          "src": "/games/icons/shortcut-history.png", 
-          "sizes": "96x96"
-        }
-      ]
+      "url": "/games/?action=history"
     },
     {
       "name": "Statistics",
       "short_name": "Stats",
       "description": "View player statistics",
-      "url": "/games/?action=stats",
-      "icons": [
-        {
-          "src": "/games/icons/shortcut-stats.png",
-          "sizes": "96x96"
-        }
-      ]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/games/screenshots/desktop-1.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Desktop game interface"
-    },
-    {
-      "src": "/games/screenshots/mobile-1.png", 
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "Mobile scoring interface"
+      "url": "/games/?action=stats"
     }
   ]
 }
