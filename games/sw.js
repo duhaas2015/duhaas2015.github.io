@@ -10,10 +10,10 @@ const FILES_TO_CACHE = [
   '/games/index.html',
   '/games/docs.html',
   '/games/manifest.json',
-  '/games/offline.html',
-  // Add icon files when they exist
-  '/games/icons/icon-192x192.png',
-  '/games/icons/icon-512x512.png'
+  '/games/offline.html'
+  // Icons will be cached when they exist:
+  // '/games/icons/icon-192x192.png',
+  // '/games/icons/icon-512x512.png'
 ];
 
 // Install event - cache files
