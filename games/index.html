@@ -1165,8 +1165,17 @@
             handDealer.innerHTML = '<option value="">Select Dealer First</option>' + playerOptions;
             
             // Pre-select current dealer if seating is arranged
-            if (currentDealer && players.includes(currentDealer)) {
-                handDealer.value = currentDealer;
+            if (currentDealer) {
+                // Check if dealer is in allPlayers (handles sitting out scenarios)
+                const isValidDealer = allPlayers.some(p => p.name === currentDealer);
+                if (isValidDealer) {
+                    handDealer.value = currentDealer;
+                    console.log('Pre-selected dealer:', currentDealer);
+                } else {
+                    console.log('Current dealer not valid:', currentDealer);
+                }
+            } else {
+                console.log('No current dealer set');
             }
             
             // Show/hide advance dealer button based on seating arrangement
@@ -2068,10 +2077,13 @@ Dealer redeals now...`);
         }
         
         function autoArrangeSeating() {
+            console.log('Auto-arranging seating for players:', allPlayers.map(p => p.name));
             seatingArrangement = {};
             allPlayers.forEach((player, index) => {
                 seatingArrangement[index + 1] = player.name;
             });
+            
+            console.log('Seating arrangement created:', seatingArrangement);
             
             // Set first player as dealer if no dealer set
             if (!currentDealer && allPlayers.length > 0) {
@@ -2080,6 +2092,15 @@ Dealer redeals now...`);
             }
             
             updateSeatingDisplay();
+            
+            // If we're already in-game, update the interface
+            if (!document.getElementById('setup').classList.contains('hidden')) {
+                // We're still in setup, this is fine
+            } else {
+                // We're in-game, need to update the hand dealer dropdown
+                setupGameInterface();
+                console.log('Updated game interface after auto-arrange');
+            }
         }
         
         function clearSeating() {
