@@ -34,7 +34,7 @@ This repository contains a comprehensive Progressive Web App (PWA) for tracking 
 - Complete scoring system with all sheepshead rules
 - 5-hand session management with automatic settlement
 - Advanced doubler queue system
-- **Auto-save**: Automatically saves after each hand (no manual saving required)
+- **Auto-save**: Automatically saves after each hand with non-intrusive confirmation messages
 - Comprehensive player statistics (overall + picker records)
 - Historical game tracking and analysis
 - Data export/import capabilities
@@ -96,8 +96,8 @@ The app automatically updates when changes are pushed to GitHub Pages:
 
 ### ✅ Game Management
 - 7 preset players + custom player support
-- 5+ player games with smart dealer rotation
-- **Visual seating arrangement**: Drag-and-drop table setup with clockwise dealer rotation
+- 5+ player games with intelligent dealer progression
+- **Visual seating arrangement**: Drag-and-drop table setup with automatic clockwise dealer rotation
 - **Per-hand sitting out**: Required selection for 6+ player games (maintains 5-player sheepshead rules)
 - **Smart mid-session player addition**: Dropdown of available preset players + custom name option
 
@@ -124,11 +124,11 @@ The app automatically updates when changes are pushed to GitHub Pages:
 ## 📊 Usage Statistics
 
 Perfect for:
-- **Regular Game Groups**: Weekly sheepshead nights with organized seating, smart player management, and dynamic attendance
-- **Tournament Play**: Multi-session tournaments with professional table management and quick player additions
+- **Regular Game Groups**: Weekly sheepshead nights with organized seating, automatic dealer rotation, and dynamic attendance
+- **Tournament Play**: Multi-session tournaments with professional table management and seamless game flow
 - **Statistics Tracking**: Long-term player analysis with positional insights and comprehensive tracking
 - **Mobile Gaming**: Play anywhere, works offline with full functionality and intuitive controls
-- **Flexible Sessions**: Handle late arrivals, player substitutions, seating changes, and preset player selection
+- **Flexible Sessions**: Handle late arrivals, player substitutions, seating changes, and automated game progression
 
 ## 🤝 Contributing
 

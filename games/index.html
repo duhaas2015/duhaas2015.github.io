@@ -1328,6 +1328,11 @@
             // Auto-save after each hand
             saveSession();
             
+            // Automatically advance dealer if seating is arranged
+            if (Object.keys(seatingArrangement).length >= 5) {
+                advanceDealer();
+            }
+            
             clearHand();
             currentHand++;
         }
@@ -1502,6 +1507,12 @@ Dealer redeals now...`);
             
             // Auto-save after doubler
             saveSession();
+            
+            // Automatically advance dealer if seating is arranged
+            // Note: After a doubler, dealer moves to next person clockwise
+            if (Object.keys(seatingArrangement).length >= 5) {
+                advanceDealer();
+            }
             
             clearHand();
         }
