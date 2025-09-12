@@ -941,10 +941,16 @@
 
             <div style="margin-top: 20px;">
                 <div style="margin-bottom: 15px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
-                    <label for="midGamePlayerName" style="display: block; margin-bottom: 8px; font-weight: bold;">Add Player Mid-Session:</label>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Add Player Mid-Session:</label>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <select id="midGamePlayerSelect" style="flex: 1; max-width: 200px;">
+                            <option value="">Select preset player</option>
+                        </select>
+                        <button onclick="addPresetPlayerMidSession()">Add Selected</button>
+                    </div>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="text" id="midGamePlayerName" placeholder="Enter new player name" style="flex: 1; max-width: 250px;">
-                        <button onclick="addPlayerMidSession()">Add Player</button>
+                        <input type="text" id="midGamePlayerName" placeholder="Or enter custom player name" style="flex: 1; max-width: 250px;">
+                        <button onclick="addCustomPlayerMidSession()">Add Custom</button>
                     </div>
                 </div>
                 <button onclick="saveSession()">Save Session</button>
@@ -1088,6 +1094,7 @@
             
             setupGameInterface();
             updateCurrentHandTitle();
+            updateMidSessionPlayerDropdown();
             console.log('Game started with players:', players);
         }
 
@@ -1589,7 +1596,7 @@ Dealer redeals now...`);
             // Use event delegation since the element is created dynamically
             document.addEventListener('keypress', function(e) {
                 if (e.target && e.target.id === 'midGamePlayerName' && e.key === 'Enter') {
-                    addPlayerMidSession();
+                    addCustomPlayerMidSession();
                 }
             });
         });
@@ -2609,7 +2616,21 @@ Check console for detailed info.`);
             });
         }
         
-        function addPlayerMidSession() {
+        function addPresetPlayerMidSession() {
+            const selectElement = document.getElementById('midGamePlayerSelect');
+            const name = selectElement.value;
+            
+            if (!name) {
+                alert('Please select a preset player');
+                return;
+            }
+            
+            addPlayerToGame(name);
+            selectElement.value = '';
+            updateMidSessionPlayerDropdown();
+        }
+        
+        function addCustomPlayerMidSession() {
             const nameInput = document.getElementById('midGamePlayerName');
             const name = nameInput.value.trim();
             
@@ -2618,9 +2639,13 @@ Check console for detailed info.`);
                 return;
             }
             
+            addPlayerToGame(name);
+            nameInput.value = '';
+        }
+        
+        function addPlayerToGame(name) {
             if (players.includes(name) || allPlayers.some(p => p.name === name)) {
                 alert('Player already exists in the game');
-                nameInput.value = '';
                 return;
             }
             
@@ -2660,12 +2685,46 @@ Check console for detailed info.`);
             updateStatsTable();
             updateSittingOutOptions();
             updateSettlementTable();
+            updateSeatingDisplay(); // Update seating if active
             
-            nameInput.value = '';
             alert(`${name} has been added to the game!`);
             
             // Auto-save the session
             saveSession();
+            
+            // Update dropdown to reflect new player addition
+            updateMidSessionPlayerDropdown();
+        }
+        
+        function updateMidSessionPlayerDropdown() {
+            const selectElement = document.getElementById('midGamePlayerSelect');
+            if (!selectElement) return;
+            
+            // Get all preset players (the original 7 preset players)
+            const presetPlayerNames = [
+                'Duane Haas', 'Nate Miller', 'Adam Arndt', 'Jim Remm', 
+                'Rick Lopez', 'Jeff LaValle', 'Todd Sobotka'
+            ];
+            
+            // Filter out players already in the game
+            const currentPlayerNames = allPlayers.map(p => p.name);
+            const availablePresetPlayers = presetPlayerNames.filter(name => 
+                !currentPlayerNames.includes(name)
+            );
+            
+            // Update dropdown options
+            selectElement.innerHTML = '<option value="">Select preset player</option>' +
+                availablePresetPlayers.map(name => 
+                    `<option value="${name}">${name}</option>`
+                ).join('');
+            
+            // Hide the entire add player section if at max capacity
+            const addPlayerSection = selectElement.closest('div').closest('div');
+            if (allPlayers.length >= 8) {
+                addPlayerSection.style.display = 'none';
+            } else {
+                addPlayerSection.style.display = 'block';
+            }
         }
         
         function updateStatsTable() {
