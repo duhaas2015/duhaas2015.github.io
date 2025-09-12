@@ -1619,7 +1619,14 @@ Dealer redeals now...`);
             document.getElementById('wrappedBy').value = '';
             document.getElementById('reWrappedBy').value = '';
             document.getElementById('calledSuit').value = '';
-            document.getElementById('handDealer').value = '';
+            
+            // Only clear dealer if we don't have automatic dealer progression
+            if (Object.keys(seatingArrangement).length < 5) {
+                document.getElementById('handDealer').value = '';
+            } else {
+                console.log('Preserving dealer for automatic progression:', currentDealer);
+            }
+            
             document.getElementById('sittingOutThisHand').value = '';
             document.getElementById('isDoubler').checked = false;
             updatePickerPartnerOptions();
