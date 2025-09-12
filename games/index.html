@@ -676,6 +676,26 @@
         .player-chip:active {
             cursor: grabbing;
         }
+        
+        .version-info {
+            position: fixed;
+            bottom: 10px;
+            right: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            z-index: 100;
+            pointer-events: none;
+            user-select: none;
+            text-align: right;
+            line-height: 1.2;
+        }
+        
+        .update-date {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
 
         @media (max-width: 768px) {
             .container {
@@ -1013,6 +1033,12 @@
                 <span class="close" onclick="closeSessionModal()">&times;</span>
                 <div id="sessionDetail"></div>
             </div>
+        </div>
+        
+        <!-- Version Number -->
+        <div class="version-info">
+            <div>v2.1.0</div>
+            <div class="update-date">Updated: Dec 12, 2025</div>
         </div>
     </div>
 
