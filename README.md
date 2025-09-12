@@ -97,8 +97,8 @@ The app automatically updates when changes are pushed to GitHub Pages:
 
 ### ✅ Game Management
 - 7 preset players + custom player support
-- 5+ player games with intelligent dealer progression
-- **Visual seating arrangement**: Drag-and-drop table setup with automatic clockwise dealer rotation
+- 5+ player games with seamless automated dealer progression
+- **Visual seating arrangement**: Drag-and-drop table setup with fully automatic clockwise dealer progression
 - **Per-hand sitting out**: Required selection for 6+ player games (maintains 5-player sheepshead rules)
 - **Smart mid-session player addition**: Dropdown of available preset players + custom name option
 
@@ -126,8 +126,8 @@ The app automatically updates when changes are pushed to GitHub Pages:
 ## 📊 Usage Statistics
 
 Perfect for:
-- **Regular Game Groups**: Weekly sheepshead nights with organized seating, automatic dealer rotation, and dynamic attendance
-- **Tournament Play**: Multi-session tournaments with professional table management, seamless game flow, and version tracking
+- **Regular Game Groups**: Weekly sheepshead nights with organized seating, zero-intervention dealer rotation, and dynamic attendance
+- **Tournament Play**: Multi-session tournaments with professional table management and completely automated game flow
 - **Statistics Tracking**: Long-term player analysis with positional insights and comprehensive tracking
 - **Mobile Gaming**: Play anywhere, works offline with full functionality and intuitive controls
 - **Development & Support**: Version transparency for troubleshooting and ensuring latest updates
