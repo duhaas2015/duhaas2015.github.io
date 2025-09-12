@@ -588,8 +588,8 @@
         .seat-2 { top: 50px; right: -40px; transform: translateY(-50%); }
         .seat-3 { bottom: 50px; right: -40px; transform: translateY(50%); }
         .seat-4 { bottom: -30px; left: 50%; transform: translateX(-50%); }
-        .seat-5 { top: 50px; left: -40px; transform: translateY(-50%); }
-        .seat-6 { bottom: 50px; left: -40px; transform: translateY(50%); }
+        .seat-5 { bottom: 50px; left: -40px; transform: translateY(50%); }
+        .seat-6 { top: 50px; left: -40px; transform: translateY(-50%); }
         .seat-7 { top: 20px; right: 20px; }
         .seat-8 { bottom: 20px; left: 20px; }
         
@@ -1136,6 +1136,15 @@
             gameStartTime = new Date().toISOString();
             currentSessionId = generateSessionId();
             initializePlayerStats();
+            
+            // If no dealer is set but we have seating, set the first player as dealer
+            if (!currentDealer && Object.keys(seatingArrangement).length >= 5) {
+                // Find the first player in seating position order
+                const firstPosition = Math.min(...Object.keys(seatingArrangement).map(k => parseInt(k)));
+                currentDealer = seatingArrangement[firstPosition];
+                console.log('Set initial dealer from seating position', firstPosition, ':', currentDealer);
+            }
+            
             initializeSessionTracking();
             document.getElementById('setup').classList.add('hidden');
             document.getElementById('gameSection').classList.remove('hidden');
@@ -1144,6 +1153,7 @@
             updateCurrentHandTitle();
             updateMidSessionPlayerDropdown();
             console.log('Game started with players:', players);
+            console.log('Initial dealer set to:', currentDealer);
         }
 
         function setupGameInterface() {
