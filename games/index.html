@@ -1219,6 +1219,12 @@
             console.log('handDealer selected index:', handDealerElement.selectedIndex);
             console.log('handDealer selected option:', handDealerElement.options[handDealerElement.selectedIndex]?.text || 'None');
             
+            // Log stack trace to see what called this function
+            if (dealer === '') {
+                console.log('Empty dealer detected! Stack trace:');
+                console.trace();
+            }
+            
             // Store current values before updating dropdowns
             const currentPickerValue = picker.value;
             const currentPartnerValue = partner.value;
