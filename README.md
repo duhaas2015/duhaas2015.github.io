@@ -107,6 +107,7 @@ The app automatically updates when changes are pushed to GitHub Pages:
 
 ### ✅ Statistics & Analytics
 - Dual record tracking (overall vs picker performance)
+- **Total hands tracking**: Complete play history for each player
 - Doubler win tracking (session + lifetime)
 - Historical session analysis
 - CSV export for external analysis

@@ -1819,6 +1819,7 @@ Dealer redeals now...`);
                             <th>Player</th>
                             <th>Total Winnings</th>
                             <th>Sessions</th>
+                            <th>Total Hands</th>
                             <th>Record</th>
                             <th>Win %</th>
                             <th>Avg/Hand</th>
@@ -1837,6 +1838,7 @@ Dealer redeals now...`);
                         <td><strong>${player.name}</strong></td>
                         <td class="${player.allTimeScore > 0 ? 'positive' : 'negative'}"><strong>$${player.allTimeScore}</strong></td>
                         <td>${player.totalSessions}</td>
+                        <td><strong>${player.totalHands}</strong></td>
                         <td>${player.allTimeRecord.wins}-${player.allTimeRecord.losses}</td>
                         <td>${player.winPercentage}%</td>
                         <td class="${parseFloat(player.avgScorePerHand) > 0 ? 'positive' : 'negative'}">$${player.avgScorePerHand}</td>
