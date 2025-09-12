@@ -2168,9 +2168,21 @@ Dealer redeals now...`);
                     // Check if dealer is in allPlayers instead of just players (to handle sitting out scenarios)
                     const isValidDealer = allPlayers.some(p => p.name === currentDealer);
                     if (isValidDealer) {
+                        console.log('Attempting to set dealer to:', currentDealer);
+                        console.log('Dropdown options available:', Array.from(handDealer.options).map(opt => `"${opt.value}"`));
+                        
                         handDealer.value = currentDealer;
-                        console.log('Set handDealer.value to:', handDealer.value);
-                        console.log('Dropdown options available:', Array.from(handDealer.options).map(opt => opt.value));
+                        console.log('After setting, handDealer.value is:', `"${handDealer.value}"`);
+                        console.log('Selected option text:', handDealer.options[handDealer.selectedIndex].text);
+                        
+                        // Double-check if the option exists and force selection if needed
+                        const optionExists = Array.from(handDealer.options).some(opt => opt.value === currentDealer);
+                        console.log('Does option exist for dealer?', optionExists);
+                        
+                        if (!optionExists) {
+                            console.log('Option not found! Available options:', Array.from(handDealer.options).map(opt => opt.value));
+                        }
+                        
                         updatePickerPartnerOptions();
                         console.log('Dealer dropdown updated successfully');
                     } else {
