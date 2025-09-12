@@ -1038,7 +1038,7 @@
         <!-- Version Number -->
         <div class="version-info">
             <div>v2.1.0</div>
-            <div class="update-date">Updated: Dec 12, 2025</div>
+            <div class="update-date" id="updateDate">Updated: Loading...</div>
         </div>
     </div>
 
@@ -2998,6 +2998,58 @@ Check console for detailed info.`);
             console.log('🎉 App installed successfully!');
             // Track installation analytics here if needed
         });
+        
+        // Update the last modified date dynamically
+        function updateLastModifiedDate() {
+            try {
+                fetch(window.location.href, { method: 'HEAD' })
+                    .then(response => {
+                        const lastModified = response.headers.get('Last-Modified');
+                        if (lastModified) {
+                            const date = new Date(lastModified);
+                            const formattedDate = date.toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                            });
+                            document.getElementById('updateDate').textContent = `Updated: ${formattedDate}`;
+                        } else {
+                            // Fallback to document.lastModified
+                            if (document.lastModified) {
+                                const date = new Date(document.lastModified);
+                                const formattedDate = date.toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric'
+                                });
+                                document.getElementById('updateDate').textContent = `Updated: ${formattedDate}`;
+                            } else {
+                                document.getElementById('updateDate').textContent = 'Updated: Recently';
+                            }
+                        }
+                    })
+                    .catch(() => {
+                        // Fallback to document.lastModified if fetch fails
+                        if (document.lastModified) {
+                            const date = new Date(document.lastModified);
+                            const formattedDate = date.toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                            });
+                            document.getElementById('updateDate').textContent = `Updated: ${formattedDate}`;
+                        } else {
+                            document.getElementById('updateDate').textContent = 'Updated: Recently';
+                        }
+                    });
+            } catch (error) {
+                console.log('Could not fetch last modified date:', error);
+                document.getElementById('updateDate').textContent = 'Updated: Recently';
+            }
+        }
+        
+        // Call the function when the page loads
+        document.addEventListener('DOMContentLoaded', updateLastModifiedDate);
         
         // Handle PWA display mode
         if (window.matchMedia('(display-mode: standalone)').matches) {
