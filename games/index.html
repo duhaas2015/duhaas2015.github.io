@@ -3012,7 +3012,12 @@ Check console for detailed info.`);
                                 day: 'numeric',
                                 year: 'numeric'
                             });
-                            document.getElementById('updateDate').textContent = `Updated: ${formattedDate}`;
+                            const formattedTime = date.toLocaleTimeString('en-US', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                            document.getElementById('updateDate').textContent = `Updated: ${formattedDate} ${formattedTime}`;
                         } else {
                             // Fallback to document.lastModified
                             if (document.lastModified) {
@@ -3022,7 +3027,12 @@ Check console for detailed info.`);
                                     day: 'numeric',
                                     year: 'numeric'
                                 });
-                                document.getElementById('updateDate').textContent = `Updated: ${formattedDate}`;
+                                const formattedTime = date.toLocaleTimeString('en-US', {
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    hour12: true
+                                });
+                                document.getElementById('updateDate').textContent = `Updated: ${formattedDate} ${formattedTime}`;
                             } else {
                                 document.getElementById('updateDate').textContent = 'Updated: Recently';
                             }
@@ -3037,7 +3047,12 @@ Check console for detailed info.`);
                                 day: 'numeric',
                                 year: 'numeric'
                             });
-                            document.getElementById('updateDate').textContent = `Updated: ${formattedDate}`;
+                            const formattedTime = date.toLocaleTimeString('en-US', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                            });
+                            document.getElementById('updateDate').textContent = `Updated: ${formattedDate} ${formattedTime}`;
                         } else {
                             document.getElementById('updateDate').textContent = 'Updated: Recently';
                         }
