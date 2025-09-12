@@ -1213,6 +1213,8 @@
             const picker = document.getElementById('picker');
             const partner = document.getElementById('partner');
             
+            console.log('updatePickerPartnerOptions called with dealer:', dealer);
+            
             // Store current values before updating dropdowns
             const currentPickerValue = picker.value;
             const currentPartnerValue = partner.value;
@@ -2167,6 +2169,8 @@ Dealer redeals now...`);
                     const isValidDealer = allPlayers.some(p => p.name === currentDealer);
                     if (isValidDealer) {
                         handDealer.value = currentDealer;
+                        console.log('Set handDealer.value to:', handDealer.value);
+                        console.log('Dropdown options available:', Array.from(handDealer.options).map(opt => opt.value));
                         updatePickerPartnerOptions();
                         console.log('Dealer dropdown updated successfully');
                     } else {
