@@ -838,6 +838,24 @@
             
             <div class="players-list" id="playersList"></div>
             
+            <div class="session-settings" style="margin: 20px 0; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+                <h3>Session Settings</h3>
+                <div style="display: flex; align-items: center; gap: 10px; margin-top: 10px;">
+                    <label for="sessionLength" style="font-weight: bold;">Hands per session:</label>
+                    <select id="sessionLength" style="padding: 5px;">
+                        <option value="10">10 hands</option>
+                        <option value="12">12 hands</option>
+                        <option value="15" selected>15 hands (recommended)</option>
+                        <option value="18">18 hands</option>
+                        <option value="20">20 hands (traditional)</option>
+                        <option value="22">22 hands</option>
+                        <option value="25">25 hands</option>
+                        <option value="30">30 hands</option>
+                    </select>
+                    <span style="color: rgba(255, 255, 255, 0.7); font-size: 14px;">Sessions determine automatic settlement points</span>
+                </div>
+            </div>
+            
             <button onclick="startGame()" id="startBtn" disabled>Start Game (Need 5+ Players)</button>
         </div>
 
@@ -934,7 +952,7 @@
 
             <div class="settlement-section" id="settlementSection" style="display: none;">
                 <h3>💰 Settlement Summary</h3>
-                <p>Total debt/winnings across all 5-hand sessions:</p>
+                <p>Total debt/winnings across all completed sessions:</p>
                 <table class="score-table" id="settlementTable">
                     <thead>
                         <tr id="settlementHeader">
@@ -1052,13 +1070,14 @@
         let gameStartTime = null;
         let currentHandDealer = null;
         let sittingOut = null;
-        let fiveHandSessions = []; // Track each 5-hand session
+        let completedSessions = []; // Track each completed session
         let currentSessionNumber = 1;
         let totalPlayerDebts = {}; // Running total of what each player owes
         let doublerQueue = 0; // Number of doubled hands queued up
         let currentHandMultiplier = 1; // Current hand scoring multiplier
         let seatingArrangement = {}; // Maps position (1-8) to player name
         let currentDealer = null; // Current dealer for seating rotation
+        let handsPerSession = 15; // Configurable session length
 
         function addCustomPlayer() {
             const nameInput = document.getElementById('playerName');
@@ -1132,6 +1151,10 @@
 
         function startGame() {
             if (players.length < 5) return;
+            
+            // Get the configured session length
+            handsPerSession = parseInt(document.getElementById('sessionLength').value);
+            console.log('Starting game with session length:', handsPerSession);
             
             gameStartTime = new Date().toISOString();
             currentSessionId = generateSessionId();
@@ -1377,8 +1400,8 @@
                 doublerQueue--;
             }
             
-            // Check if we've completed a 5-hand session
-            if (currentHand % 5 === 0) {
+            // Check if we've completed a session
+            if (currentHand % handsPerSession === 0) {
                 completeSession();
             }
             
@@ -1521,10 +1544,10 @@
             </tr>`;
             
             // Add previous sessions summary
-            if (fiveHandSessions.length > 0) {
+            if (completedSessions.length > 0) {
                 html += `<tr><td colspan="${players.length + 2}" class="session-marker">Previous Sessions</td></tr>`;
                 
-                fiveHandSessions.forEach((session, index) => {
+                completedSessions.forEach((session, index) => {
                     html += `<tr class="session-totals">
                         <td><strong>Session ${index + 1}</strong></td>
                         ${players.map(p => {
@@ -1639,7 +1662,7 @@ Dealer redeals now...`);
                 hands = [];
                 currentHand = 1;
                 playerStats = {};
-                fiveHandSessions = [];
+                completedSessions = [];
                 currentSessionNumber = 1;
                 totalPlayerDebts = {};
                 doublerQueue = 0;
@@ -1768,7 +1791,7 @@ Dealer redeals now...`);
         }
         
         function initializeSessionTracking() {
-            fiveHandSessions = [];
+            completedSessions = [];
             currentSessionNumber = 1;
             totalPlayerDebts = {};
             doublerQueue = 0;
@@ -1785,8 +1808,8 @@ Dealer redeals now...`);
             const sessionTotals = {};
             players.forEach(p => sessionTotals[p] = 0);
             
-            const sessionStartHand = (currentSessionNumber - 1) * 5 + 1;
-            const sessionHands = hands.filter(h => h.number >= sessionStartHand && h.number < sessionStartHand + 5);
+            const sessionStartHand = (currentSessionNumber - 1) * handsPerSession + 1;
+            const sessionHands = hands.filter(h => h.number >= sessionStartHand && h.number < sessionStartHand + handsPerSession);
             
             sessionHands.forEach(hand => {
                 players.forEach(player => {
@@ -1795,7 +1818,7 @@ Dealer redeals now...`);
             });
             
             // Store the completed session
-            fiveHandSessions.push({
+            completedSessions.push({
                 sessionNumber: currentSessionNumber,
                 totals: { ...sessionTotals },
                 hands: [...sessionHands]
@@ -1818,7 +1841,7 @@ Dealer redeals now...`);
         }
         
         function showSessionSettlementAlert(sessionTotals) {
-            let message = `Session ${currentSessionNumber - 1} Complete!\\n\\nSettlement for this session:\\n`;
+            let message = `${handsPerSession}-Hand Session ${currentSessionNumber - 1} Complete!\\n\\nSettlement for this session:\\n`;
             
             const debts = Object.entries(sessionTotals)
                 .filter(([player, amount]) => amount < 0)
@@ -1845,7 +1868,7 @@ Dealer redeals now...`);
             const settlementSection = document.getElementById('settlementSection');
             const tbody = document.getElementById('settlementBody');
             
-            if (fiveHandSessions.length === 0) {
+            if (completedSessions.length === 0) {
                 settlementSection.style.display = 'none';
                 return;
             }
@@ -1942,7 +1965,7 @@ Dealer redeals now...`);
             localStorage.setItem('sheepsheadSessions', JSON.stringify(existingSessions));
             
             // Add session tracking data
-            sessionData.fiveHandSessions = fiveHandSessions;
+            sessionData.completedSessions = completedSessions;
             sessionData.totalPlayerDebts = totalPlayerDebts;
             sessionData.currentSessionNumber = currentSessionNumber;
             
