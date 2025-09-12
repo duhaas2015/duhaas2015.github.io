@@ -1067,6 +1067,9 @@
                 completeSession();
             }
             
+            // Auto-save after each hand
+            saveSession();
+            
             clearHand();
             currentHand++;
         }
@@ -1233,6 +1236,9 @@
 ${queueText} will be worth 2x points!
 
 Dealer redeals now...`);
+            
+            // Auto-save after doubler
+            saveSession();
             
             clearHand();
         }

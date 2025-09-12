@@ -34,6 +34,7 @@ This repository contains a comprehensive Progressive Web App (PWA) for tracking 
 - Complete scoring system with all sheepshead rules
 - 5-hand session management with automatic settlement
 - Advanced doubler queue system
+- **Auto-save**: Automatically saves after each hand (no manual saving required)
 - Comprehensive player statistics (overall + picker records)
 - Historical game tracking and analysis
 - Data export/import capabilities
@@ -112,7 +113,7 @@ The app automatically updates when changes are pushed to GitHub Pages:
 
 ### ✅ Technical Excellence
 - Single-file architecture (no dependencies)
-- localStorage persistence
+- localStorage persistence with automatic saving
 - Responsive mobile-first design
 - PWA capabilities with offline support
 
