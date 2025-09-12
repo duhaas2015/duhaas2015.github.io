@@ -1208,12 +1208,16 @@
         }
         
         function updatePickerPartnerOptions() {
-            const dealer = document.getElementById('handDealer').value;
+            const handDealerElement = document.getElementById('handDealer');
+            const dealer = handDealerElement.value;
             const sittingOutThisHand = document.getElementById('sittingOutThisHand').value;
             const picker = document.getElementById('picker');
             const partner = document.getElementById('partner');
             
-            console.log('updatePickerPartnerOptions called with dealer:', dealer);
+            console.log('updatePickerPartnerOptions called with dealer:', `"${dealer}"`);
+            console.log('handDealer element value:', `"${handDealerElement.value}"`);
+            console.log('handDealer selected index:', handDealerElement.selectedIndex);
+            console.log('handDealer selected option:', handDealerElement.options[handDealerElement.selectedIndex]?.text || 'None');
             
             // Store current values before updating dropdowns
             const currentPickerValue = picker.value;
@@ -2171,7 +2175,12 @@ Dealer redeals now...`);
                         console.log('Attempting to set dealer to:', currentDealer);
                         console.log('Dropdown options available:', Array.from(handDealer.options).map(opt => `"${opt.value}"`));
                         
+                        // Set value without triggering onchange event
+                        const originalOnChange = handDealer.onchange;
+                        handDealer.onchange = null;
                         handDealer.value = currentDealer;
+                        handDealer.onchange = originalOnChange;
+                        
                         console.log('After setting, handDealer.value is:', `"${handDealer.value}"`);
                         console.log('Selected option text:', handDealer.options[handDealer.selectedIndex].text);
                         
@@ -2183,6 +2192,7 @@ Dealer redeals now...`);
                             console.log('Option not found! Available options:', Array.from(handDealer.options).map(opt => opt.value));
                         }
                         
+                        // Now manually call updatePickerPartnerOptions once
                         updatePickerPartnerOptions();
                         console.log('Dealer dropdown updated successfully');
                     } else {
