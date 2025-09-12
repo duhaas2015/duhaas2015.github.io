@@ -518,6 +518,27 @@
             margin-bottom: 20px;
         }
         
+        .save-message {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .save-message.show {
+            opacity: 1;
+        }
+        
+        .save-message.error {
+            background: #f44336;
+        }
+        
         .doubler-indicator {
             color: #FFC107;
             font-weight: bold;
@@ -803,6 +824,7 @@
         <div id="gameSection" class="game-section hidden">
             <div class="hand-section">
                 <h3 id="currentHandTitle">Current Hand</h3>
+                <div id="saveMessage" class="save-message" style="display: none;"></div>
                 <div class="hand-controls">
                     <div class="control-group">
                         <h4>Basic Hand Info</h4>
@@ -1849,7 +1871,29 @@ Dealer redeals now...`);
             updatePlayerProfiles(sessionData);
             
             console.log('Session saved:', sessionData);
-            alert('Session saved successfully!');
+            showSaveMessage('Session saved successfully!', 'success');
+        }
+        
+        function showSaveMessage(message, type = 'success') {
+            const messageElement = document.getElementById('saveMessage');
+            if (!messageElement) return;
+            
+            messageElement.textContent = message;
+            messageElement.className = 'save-message';
+            if (type === 'error') {
+                messageElement.classList.add('error');
+            }
+            
+            messageElement.style.display = 'block';
+            messageElement.classList.add('show');
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                messageElement.classList.remove('show');
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 300); // Wait for fade out transition
+            }, 3000);
         }
         
         function updatePlayerProfiles(sessionData) {
@@ -2687,7 +2731,7 @@ Check console for detailed info.`);
             updateSettlementTable();
             updateSeatingDisplay(); // Update seating if active
             
-            alert(`${name} has been added to the game!`);
+            showSaveMessage(`${name} has been added to the game!`, 'success');
             
             // Auto-save the session
             saveSession();
