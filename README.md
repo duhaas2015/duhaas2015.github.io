@@ -97,7 +97,7 @@ The app automatically updates when changes are pushed to GitHub Pages:
 ### ✅ Game Management
 - 7 preset players + custom player support
 - 5+ player games with smart dealer rotation
-- Flexible sitting out for 6+ player games
+- **Per-hand sitting out**: Required selection for 6+ player games (maintains 5-player sheepshead rules)
 - **Mid-session player addition**: Add new players during active games
 
 ### ✅ Advanced Scoring
@@ -105,6 +105,7 @@ The app automatically updates when changes are pushed to GitHub Pages:
 - Asymmetric schneider logic (31/30 point thresholds)
 - Wrap/re-wrap tracking with proper multipliers
 - Doubler queue system (not compounding)
+- **Sitting player exclusion**: 0 points for sitting out players (proper 5-player game math)
 
 ### ✅ Statistics & Analytics
 - Dual record tracking (overall vs picker performance)

@@ -627,6 +627,13 @@
                             </select>
                         </div>
                         
+                        <div class="form-row" id="sittingOutThisHandRow" style="display: none;">
+                            <label for="sittingOutThisHand">Sitting Out:</label>
+                            <select id="sittingOutThisHand" onchange="updatePickerPartnerOptions()">
+                                <option value="">Select who sits out</option>
+                            </select>
+                        </div>
+                        
                         <div class="form-row">
                             <label for="picker">Picker:</label>
                             <select id="picker" onchange="updatePickerPartnerOptions()">
@@ -901,6 +908,8 @@
             const wrappedBy = document.getElementById('wrappedBy');
             const reWrappedBy = document.getElementById('reWrappedBy');
             const handDealer = document.getElementById('handDealer');
+            const sittingOutThisHand = document.getElementById('sittingOutThisHand');
+            const sittingOutRow = document.getElementById('sittingOutThisHandRow');
             
             const playerOptions = players.map(p => `<option value="${p}">${p}</option>`).join('');
             console.log('Player options HTML:', playerOptions);
@@ -909,6 +918,15 @@
             wrappedBy.innerHTML = '<option value="">Who wrapped?</option>' + playerOptions;
             reWrappedBy.innerHTML = '<option value="">Who re-wrapped?</option>' + playerOptions;
             handDealer.innerHTML = '<option value="">Select Dealer First</option>' + playerOptions;
+            
+            // Show/hide sitting out dropdown based on player count
+            if (players.length > 5) {
+                sittingOutRow.style.display = 'flex';
+                sittingOutThisHand.innerHTML = '<option value="">Select who sits out</option>' + playerOptions;
+            } else {
+                sittingOutRow.style.display = 'none';
+                sittingOutThisHand.value = '';
+            }
             
             setupScoreTable();
         }
@@ -924,6 +942,7 @@
         
         function updatePickerPartnerOptions() {
             const dealer = document.getElementById('handDealer').value;
+            const sittingOutThisHand = document.getElementById('sittingOutThisHand').value;
             const picker = document.getElementById('picker');
             const partner = document.getElementById('partner');
             
@@ -934,54 +953,47 @@
             // Only exclude dealer if there are more than 5 players
             const shouldExcludeDealer = players.length > 5;
             
-            // With 5 players, dealer can be picker/partner, so no need to rebuild dropdowns
-            if (!shouldExcludeDealer) {
-                // Just update partner dropdown to exclude current picker
-                const actualPickerValue = picker.value;
-                if (actualPickerValue) {
-                    let availableForPartner = players.filter(p => p !== actualPickerValue);
-                    partner.innerHTML = '<option value="">Select Partner</option>' + 
-                        availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
-                    
-                    // Restore partner value if it's still valid
-                    if (availableForPartner.includes(currentPartnerValue)) {
-                        partner.value = currentPartnerValue;
-                    }
-                }
+            // Get list of excluded players (dealer and sitting out)
+            const excludedFromPicking = [];
+            if (shouldExcludeDealer && dealer) excludedFromPicking.push(dealer);
+            if (sittingOutThisHand) excludedFromPicking.push(sittingOutThisHand);
+            
+            // Update picker dropdown - exclude dealer (if 6+ players) and sitting out player
+            if (shouldExcludeDealer && !dealer && excludedFromPicking.length > 0) {
+                // Show "Select Dealer First" when we have 6+ players and no dealer selected
+                picker.innerHTML = '<option value="">Select Dealer First</option>';
+                partner.innerHTML = '<option value="">Select Dealer First</option>';
                 return;
             }
             
-            // With 6+ players, need to exclude dealer from picker/partner options
+            // Get available players for picking (exclude dealer if 6+ players, and sitting out player)
+            let availableForPicker = players.filter(p => !excludedFromPicking.includes(p));
+            picker.innerHTML = '<option value="">Select Picker</option>' + 
+                availableForPicker.map(p => `<option value="${p}">${p}</option>`).join('');
             
-            // Update picker dropdown
-            if (dealer) {
-                let availableForPicker = players.filter(p => p !== dealer);
-                picker.innerHTML = '<option value="">Select Picker</option>' + 
-                    availableForPicker.map(p => `<option value="${p}">${p}</option>`).join('');
-                
-                // Restore picker value if it's still valid
-                if (availableForPicker.includes(currentPickerValue)) {
-                    picker.value = currentPickerValue;
-                }
-            } else {
-                // Show "Select Dealer First" when we have 6+ players and no dealer selected
-                picker.innerHTML = '<option value="">Select Dealer First</option>';
+            // Restore picker value if it's still valid
+            if (availableForPicker.includes(currentPickerValue)) {
+                picker.value = currentPickerValue;
+            } else if (excludedFromPicking.includes(currentPickerValue)) {
+                // Clear picker if they're now excluded
+                picker.value = '';
             }
             
-            // Update partner dropdown - exclude current picker and dealer
+            // Update partner dropdown - exclude current picker, dealer (if 6+ players), and sitting out player  
             const actualPickerValue = picker.value;
-            if (dealer) {
-                let availableForPartner = players.filter(p => p !== actualPickerValue && p !== dealer);
-                partner.innerHTML = '<option value="">Select Partner</option>' + 
-                    availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
-                
-                // Restore partner value if it's still valid
-                if (availableForPartner.includes(currentPartnerValue)) {
-                    partner.value = currentPartnerValue;
-                }
-            } else {
-                // Show "Select Dealer First" when we have 6+ players and no dealer selected
-                partner.innerHTML = '<option value="">Select Dealer First</option>';
+            let excludedFromPartner = [...excludedFromPicking];
+            if (actualPickerValue) excludedFromPartner.push(actualPickerValue);
+            
+            let availableForPartner = players.filter(p => !excludedFromPartner.includes(p));
+            partner.innerHTML = '<option value="">Select Partner</option>' + 
+                availableForPartner.map(p => `<option value="${p}">${p}</option>`).join('');
+            
+            // Restore partner value if it's still valid
+            if (availableForPartner.includes(currentPartnerValue)) {
+                partner.value = currentPartnerValue;
+            } else if (excludedFromPartner.includes(currentPartnerValue)) {
+                // Clear partner if they're now excluded
+                partner.value = '';
             }
         }
 
@@ -1047,6 +1059,13 @@
                 return;
             }
             
+            // Require sitting out selection for 6+ players
+            const sittingOutThisHand = document.getElementById('sittingOutThisHand').value;
+            if (players.length > 5 && !sittingOutThisHand) {
+                alert('Please select who is sitting out this hand (required for 6+ players)');
+                return;
+            }
+            
             if (wrapped && !wrappedBy) {
                 alert('Please select who wrapped the hand');
                 return;
@@ -1057,7 +1076,7 @@
                 return;
             }
             
-            const handResult = calculateScores(picker, partner, points, wrapped, reWrapped, calledSuit, wrappedBy, reWrappedBy, 'normal', currentHandMultiplier, handDealer);
+            const handResult = calculateScores(picker, partner, points, wrapped, reWrapped, calledSuit, wrappedBy, reWrappedBy, 'normal', currentHandMultiplier, handDealer, sittingOutThisHand);
             hands.push(handResult);
             
             updatePlayerStats(handResult);
@@ -1081,7 +1100,7 @@
             currentHand++;
         }
 
-        function calculateScores(picker, partner, points, wrapped = false, reWrapped = false, calledSuit = '', wrappedBy = '', reWrappedBy = '', handType = 'normal', multiplier = 1, dealer = '') {
+        function calculateScores(picker, partner, points, wrapped = false, reWrapped = false, calledSuit = '', wrappedBy = '', reWrappedBy = '', handType = 'normal', multiplier = 1, dealer = '', sittingOut = '') {
             const hand = {
                 number: currentHand,
                 picker: picker,
@@ -1095,6 +1114,7 @@
                 handType: handType,
                 multiplier: multiplier,
                 dealer: dealer,
+                sittingOut: sittingOut,
                 scores: {}
             };
             
@@ -1112,7 +1132,10 @@
             
             players.forEach(player => {
                 let score = 0;
-                if (player === picker) {
+                if (player === sittingOut) {
+                    // Sitting out players get 0 points
+                    score = 0;
+                } else if (player === picker) {
                     score = pickerTeamWon ? basePoints * 2 : -basePoints * 2;
                 } else if (player === partner) {
                     score = pickerTeamWon ? basePoints : -basePoints;
@@ -1137,6 +1160,7 @@
             if (wrapped) description += ` WRAPPED by ${wrappedBy}`;
             if (reWrapped) description += ` RE-WRAPPED by ${reWrappedBy}`;
             if (multiplier > 1) description += ` DOUBLER x${multiplier}`;
+            if (sittingOut) description += ` (${sittingOut} sitting out)`;
             
             hand.description = description;
             
@@ -1292,6 +1316,7 @@ Dealer redeals now...`);
             document.getElementById('reWrappedBy').value = '';
             document.getElementById('calledSuit').value = '';
             document.getElementById('handDealer').value = '';
+            document.getElementById('sittingOutThisHand').value = '';
             document.getElementById('isDoubler').checked = false;
             updatePickerPartnerOptions();
             updateHandTypeOptions();
@@ -2181,30 +2206,38 @@ Check console for detailed info.`);
             
             players.forEach(player => {
                 const stats = playerStats[player];
-                stats.handsPlayed++;
-                stats.totalScore += hand.scores[player];
                 
-                if (player === hand.picker) {
-                    stats.timesPicked++;
-                    if (pickerTeamWon) {
-                        stats.wins++;
-                        stats.pickerWins++;
-                        if (isDoubler) stats.doublersWon++;
+                // Only count hands played if the player wasn't sitting out
+                if (player !== hand.sittingOut) {
+                    stats.handsPlayed++;
+                    stats.totalScore += hand.scores[player];
+                    
+                    if (player === hand.picker) {
+                        stats.timesPicked++;
+                        if (pickerTeamWon) {
+                            stats.wins++;
+                            stats.pickerWins++;
+                            if (isDoubler) stats.doublersWon++;
+                        } else {
+                            stats.losses++;
+                            stats.pickerLosses++;
+                        }
+                    } else if (player === hand.partner) {
+                        stats.timesPartner++;
+                        if (pickerTeamWon) {
+                            stats.wins++;
+                            if (isDoubler) stats.doublersWon++;
+                        } else {
+                            stats.losses++;
+                        }
                     } else {
-                        stats.losses++;
-                        stats.pickerLosses++;
+                        if (!pickerTeamWon) stats.wins++;
+                        else stats.losses++;
                     }
-                } else if (player === hand.partner) {
-                    stats.timesPartner++;
-                    if (pickerTeamWon) {
-                        stats.wins++;
-                        if (isDoubler) stats.doublersWon++;
-                    } else {
-                        stats.losses++;
-                    }
-                } else {
-                    if (!pickerTeamWon) stats.wins++;
-                    else stats.losses++;
+                }
+                // If sitting out, we still track their total score (which should be 0) but don't count the hand
+                else {
+                    stats.totalScore += hand.scores[player]; // Should be 0
                 }
             });
         }
