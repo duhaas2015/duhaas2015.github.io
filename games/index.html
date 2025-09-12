@@ -1356,7 +1356,11 @@
             
             // Automatically advance dealer if seating is arranged
             if (Object.keys(seatingArrangement).length >= 5) {
+                console.log('Advancing dealer after hand. Current dealer:', currentDealer);
                 advanceDealer();
+                console.log('New dealer after advancement:', currentDealer);
+            } else {
+                console.log('Not advancing dealer - seating arrangement not set up or insufficient players');
             }
             
             clearHand();
@@ -2072,6 +2076,7 @@ Dealer redeals now...`);
             // Set first player as dealer if no dealer set
             if (!currentDealer && allPlayers.length > 0) {
                 currentDealer = allPlayers[0].name;
+                console.log('Auto-arrange set initial dealer to:', currentDealer);
             }
             
             updateSeatingDisplay();
@@ -2084,7 +2089,13 @@ Dealer redeals now...`);
         }
         
         function getNextDealer() {
-            if (!currentDealer) return null;
+            if (!currentDealer) {
+                console.log('No current dealer set');
+                return null;
+            }
+            
+            console.log('Looking for next dealer. Current dealer:', currentDealer);
+            console.log('Seating arrangement:', seatingArrangement);
             
             // Find current dealer position
             let dealerPosition = null;
@@ -2095,34 +2106,56 @@ Dealer redeals now...`);
                 }
             }
             
-            if (!dealerPosition) return null;
+            console.log('Current dealer position:', dealerPosition);
+            
+            if (!dealerPosition) {
+                console.log('Current dealer not found in seating arrangement');
+                return null;
+            }
             
             // Find next clockwise position with a player
             let nextPosition = dealerPosition;
             const maxSeats = Math.max(...Object.keys(seatingArrangement).map(k => parseInt(k)));
+            console.log('Max seats:', maxSeats);
             
             for (let i = 0; i < maxSeats; i++) {
                 nextPosition = nextPosition >= maxSeats ? 1 : nextPosition + 1;
+                console.log('Checking position:', nextPosition);
                 if (seatingArrangement[nextPosition]) {
+                    console.log('Found next dealer:', seatingArrangement[nextPosition]);
                     return seatingArrangement[nextPosition];
                 }
             }
             
+            console.log('No next dealer found in loop');
             return null;
         }
         
         function advanceDealer() {
             const nextDealer = getNextDealer();
+            console.log('Getting next dealer:', nextDealer);
             if (nextDealer) {
                 currentDealer = nextDealer;
                 updateSeatDisplays();
                 
                 // Update the hand dealer dropdown
                 const handDealer = document.getElementById('handDealer');
-                if (handDealer && players.includes(currentDealer)) {
-                    handDealer.value = currentDealer;
-                    updatePickerPartnerOptions();
+                if (handDealer) {
+                    console.log('Setting dealer dropdown to:', currentDealer);
+                    // Check if dealer is in allPlayers instead of just players (to handle sitting out scenarios)
+                    const isValidDealer = allPlayers.some(p => p.name === currentDealer);
+                    if (isValidDealer) {
+                        handDealer.value = currentDealer;
+                        updatePickerPartnerOptions();
+                        console.log('Dealer dropdown updated successfully');
+                    } else {
+                        console.log('Current dealer not found in allPlayers list');
+                    }
+                } else {
+                    console.log('Hand dealer dropdown not found');
                 }
+            } else {
+                console.log('No next dealer found');
             }
         }
         

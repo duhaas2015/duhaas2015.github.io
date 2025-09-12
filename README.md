@@ -35,6 +35,7 @@ This repository contains a comprehensive Progressive Web App (PWA) for tracking 
 - 5-hand session management with automatic settlement
 - Advanced doubler queue system
 - **Auto-save**: Automatically saves after each hand with non-intrusive confirmation messages
+- **Version transparency**: Dynamic version number and last updated timestamp in corner
 - Comprehensive player statistics (overall + picker records)
 - Historical game tracking and analysis
 - Data export/import capabilities
@@ -120,15 +121,16 @@ The app automatically updates when changes are pushed to GitHub Pages:
 - localStorage persistence with automatic saving
 - Responsive mobile-first design with touch-friendly drag-and-drop
 - PWA capabilities with offline support
+- **Dynamic version tracking**: Real-time version display with last modified timestamp
 
 ## 📊 Usage Statistics
 
 Perfect for:
 - **Regular Game Groups**: Weekly sheepshead nights with organized seating, automatic dealer rotation, and dynamic attendance
-- **Tournament Play**: Multi-session tournaments with professional table management and seamless game flow
+- **Tournament Play**: Multi-session tournaments with professional table management, seamless game flow, and version tracking
 - **Statistics Tracking**: Long-term player analysis with positional insights and comprehensive tracking
 - **Mobile Gaming**: Play anywhere, works offline with full functionality and intuitive controls
-- **Flexible Sessions**: Handle late arrivals, player substitutions, seating changes, and automated game progression
+- **Development & Support**: Version transparency for troubleshooting and ensuring latest updates
 
 ## 🤝 Contributing
 
