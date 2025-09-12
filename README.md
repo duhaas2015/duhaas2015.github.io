@@ -98,6 +98,7 @@ The app automatically updates when changes are pushed to GitHub Pages:
 - 7 preset players + custom player support
 - 5+ player games with smart dealer rotation
 - Flexible sitting out for 6+ player games
+- **Mid-session player addition**: Add new players during active games
 
 ### ✅ Advanced Scoring
 - Dollar-based display ($1/point)
@@ -121,10 +122,11 @@ The app automatically updates when changes are pushed to GitHub Pages:
 ## 📊 Usage Statistics
 
 Perfect for:
-- **Regular Game Groups**: Weekly sheepshead nights
+- **Regular Game Groups**: Weekly sheepshead nights with dynamic attendance
 - **Tournament Play**: Multi-session tournaments  
 - **Statistics Tracking**: Long-term player analysis
 - **Mobile Gaming**: Play anywhere, works offline
+- **Flexible Sessions**: Handle late arrivals and player substitutions
 
 ## 🤝 Contributing
 

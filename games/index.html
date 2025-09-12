@@ -745,6 +745,13 @@
             </div>
 
             <div style="margin-top: 20px;">
+                <div style="margin-bottom: 15px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;">
+                    <label for="midGamePlayerName" style="display: block; margin-bottom: 8px; font-weight: bold;">Add Player Mid-Session:</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="midGamePlayerName" placeholder="Enter new player name" style="flex: 1; max-width: 250px;">
+                        <button onclick="addPlayerMidSession()">Add Player</button>
+                    </div>
+                </div>
                 <button onclick="saveSession()">Save Session</button>
                 <button onclick="newGame()">New Game</button>
                 <button onclick="exportGame()">Export Current Game</button>
@@ -1347,6 +1354,16 @@ Dealer redeals now...`);
             if (e.key === 'Enter') {
                 addCustomPlayer();
             }
+        });
+        
+        // Add Enter key support for mid-session player addition
+        document.addEventListener('DOMContentLoaded', function() {
+            // Use event delegation since the element is created dynamically
+            document.addEventListener('keypress', function(e) {
+                if (e.target && e.target.id === 'midGamePlayerName' && e.key === 'Enter') {
+                    addPlayerMidSession();
+                }
+            });
         });
         
         // Initialize preset player checkboxes
@@ -2190,6 +2207,65 @@ Check console for detailed info.`);
                     else stats.losses++;
                 }
             });
+        }
+        
+        function addPlayerMidSession() {
+            const nameInput = document.getElementById('midGamePlayerName');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                alert('Please enter a player name');
+                return;
+            }
+            
+            if (players.includes(name) || allPlayers.some(p => p.name === name)) {
+                alert('Player already exists in the game');
+                nameInput.value = '';
+                return;
+            }
+            
+            if (allPlayers.length >= 8) {
+                alert('Maximum 8 players allowed');
+                return;
+            }
+            
+            // Add to both player arrays
+            allPlayers.push({ name: name });
+            players.push(name);
+            
+            // Initialize player stats for the new player
+            playerStats[name] = {
+                wins: 0,
+                losses: 0,
+                pickerWins: 0,
+                pickerLosses: 0,
+                timesPicked: 0,
+                timesPartner: 0,
+                totalScore: 0,
+                handsPlayed: 0,
+                doublersWon: 0
+            };
+            
+            // Initialize debt tracking
+            totalPlayerDebts[name] = 0;
+            
+            // Add scores of 0 for all existing hands
+            hands.forEach(hand => {
+                hand.scores[name] = 0;
+            });
+            
+            // Update all interfaces
+            setupGameInterface();
+            updateScoreTable();
+            updateStatsTable();
+            updateSittingOutOptions();
+            updateSettlementTable();
+            
+            nameInput.value = '';
+            alert(`${name} has been added to the game!`);
+            
+            // Auto-save the session
+            saveSession();
         }
         
         function updateStatsTable() {
