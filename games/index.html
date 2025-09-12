@@ -2103,9 +2103,15 @@ Dealer redeals now...`);
             if (!document.getElementById('setup').classList.contains('hidden')) {
                 // We're still in setup, this is fine
             } else {
-                // We're in-game, need to update the hand dealer dropdown
+                // We're in-game, need to update the hand dealer dropdown but preserve current dealer
+                const currentDealerValue = document.getElementById('handDealer')?.value;
                 setupGameInterface();
-                console.log('Updated game interface after auto-arrange');
+                // Restore dealer selection (should be currentDealer from seating)
+                const handDealer = document.getElementById('handDealer');
+                if (handDealer && currentDealer) {
+                    handDealer.value = currentDealer;
+                }
+                console.log('Updated game interface after auto-arrange, dealer restored to:', currentDealer);
             }
         }
         
@@ -2194,6 +2200,11 @@ Dealer redeals now...`);
                         
                         // Now manually call updatePickerPartnerOptions once
                         updatePickerPartnerOptions();
+                        
+                        // Check the value again after updatePickerPartnerOptions
+                        console.log('After updatePickerPartnerOptions, handDealer.value is:', `"${handDealer.value}"`);
+                        console.log('After updatePickerPartnerOptions, selected option text:', handDealer.options[handDealer.selectedIndex].text);
+                        
                         console.log('Dealer dropdown updated successfully');
                     } else {
                         console.log('Current dealer not found in allPlayers list');
@@ -2840,8 +2851,14 @@ Check console for detailed info.`);
                 hand.scores[name] = 0;
             });
             
-            // Update all interfaces
+            // Update all interfaces (but preserve current dealer selection)
+            const currentDealerValue = document.getElementById('handDealer')?.value;
             setupGameInterface();
+            // Restore dealer selection if it was set
+            if (currentDealerValue && currentDealerValue !== '') {
+                const handDealer = document.getElementById('handDealer');
+                if (handDealer) handDealer.value = currentDealerValue;
+            }
             updateScoreTable();
             updateStatsTable();
             updateSittingOutOptions();
