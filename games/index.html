@@ -761,6 +761,10 @@
                         <input type="checkbox" id="todd" value="Todd Sobotka">
                         <label for="todd">Todd Sobotka</label>
                     </div>
+                    <div class="player-checkbox">
+                        <input type="checkbox" id="brian" value="Brian Lussier">
+                        <label for="brian">Brian Lussier</label>
+                    </div>
                 </div>
                 <div class="input-group">
                     <label for="playerName">Add Custom Player:</label>
@@ -2924,10 +2928,10 @@ Check console for detailed info.`);
             const selectElement = document.getElementById('midGamePlayerSelect');
             if (!selectElement) return;
             
-            // Get all preset players (the original 7 preset players)
+            // Get all preset players (the original 8 preset players)
             const presetPlayerNames = [
                 'Duane Haas', 'Nate Miller', 'Adam Arndt', 'Jim Remm', 
-                'Rick Lopez', 'Jeff LaValle', 'Todd Sobotka'
+                'Rick Lopez', 'Jeff LaValle', 'Todd Sobotka', 'Brian Lussier'
             ];
             
             // Filter out players already in the game
