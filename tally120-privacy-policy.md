@@ -6,7 +6,6 @@ Tally 120 does not collect, store, or share any personal information.
 
 Data Storage:
 - All game data is stored locally on your device
-- Optional iCloud sync stores data in your personal iCloud account only
 - No data is transmitted to the developer or third parties
 
 Third-Party Services:
