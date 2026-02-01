@@ -1,6 +1,6 @@
 # Reimbursable
 
-## Description (4000 characters max)
+## Description
 
 **Build Your Tax-Free Medical Savings with Confidence**
 
