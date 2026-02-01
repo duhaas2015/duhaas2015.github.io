@@ -82,7 +82,7 @@ HSA,health savings account,medical expenses,tax free,reimbursement,receipt track
 
 ---
 
-## What's New (4000 characters max)
+## What's New
 *For your initial release (Version 1.0)*
 
 **Welcome to Reimbursable 1.0!**
