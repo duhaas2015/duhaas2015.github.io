@@ -76,7 +76,7 @@ Your medical expense data is sensitive. Reimbursable never sends your data to th
 
 ---
 
-## Keywords (100 characters max, comma-separated)
+## Keywords
 
 HSA,health savings account,medical expenses,tax free,reimbursement,receipt tracker,IRS,healthcare
 
